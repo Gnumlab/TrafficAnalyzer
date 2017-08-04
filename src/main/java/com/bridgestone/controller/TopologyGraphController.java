@@ -41,7 +41,7 @@ public class TopologyGraphController {
         Node startingNode = this.makeNode(msg, 1);
         Node arrivalNode = this.makeNode(msg, 2);
 
-        Edge edge = this.makeArc(msg, arrivalNode);
+        Edge edge = this.makeEdge(msg, arrivalNode);
         System.out.println("UPDATE GRAPH\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" + startingNode.getGraphKey());
 
         /**IMPORTANT:
@@ -109,7 +109,7 @@ public class TopologyGraphController {
         return new Node(x, y);
     }
 
-    private Edge makeArc(JsonNode jsonData, Node arrivalNode){
+    private Edge makeEdge(JsonNode jsonData, Node arrivalNode){
 
         int speed = jsonData.get("speed").asInt();
         return new Edge(arrivalNode.getGraphKey(), speed);
@@ -123,12 +123,12 @@ public class TopologyGraphController {
         return false;
     }
 
-    private Edge getForwardArc(Node start, Node arrival){
+    private Edge getForwardEdge(Node start, Node arrival){
         // taking all the vectors starting from the arrival section
         Collection<Edge> edges = arrival.getEdges().values();
         Edge nextEdge = null;
         for ( Edge edge : edges) {
-            if ( !edge.getEndingNode().equals(start)) {
+            if ( !edge.getEndingNode().equals(start.getGraphKey())) {//NB: ending node is now the key of the Node
             /*if the ending side of the vector is the one where I start than it is not the next vector
               but a back-propaagtion vector
              */
@@ -141,24 +141,22 @@ public class TopologyGraphController {
 
     /** N.B: the results will be updated into the instance result of CalculateMeanResult */
     private void recursiveMeanCalculation(CalculateMeanResult result,
-                                                         Edge startingEdge){
+                                                         Edge startingEdge, Node startingNode){
 
-      /*  // updating the values of result for the current vector analyzed
+        // updating the values of result for the current vector analyzed
         result.sum = startingEdge.getSpeed();
         result.numElem ++;
-        Node arrivalNode = startingEdge.getEndingNode();
+        Node arrivalNode = this.topology.getNodeByKey(startingEdge.getEndingNode());
         if(checkIfCrossroad(arrivalNode)){
-            *//*if next section is a crossroad this is the last value to sum:
+            /*if next section is a crossroad this is the last value to sum:
             exit condition for the recursion
-             *//*
+             */
             return;
         }
         //propagation of the operation until a crossroad
-        Node startNode = startingEdge.getStartNode();
-
         //updating starting vector to the new vector to process
-        startingEdge = this.getForwardArc(startNode, arrivalNode);
-        this.recursiveMeanCalculation(result, startingEdge);*/
+        startingEdge = this.getForwardEdge(startingNode, arrivalNode);
+        this.recursiveMeanCalculation(result, startingEdge, arrivalNode);
     }
 
 
@@ -170,7 +168,7 @@ public class TopologyGraphController {
          */
         for ( Edge edge : edges) {
             //recursiveMeanCalculation() will make the sum of all the speed values and number of values added
-            this.recursiveMeanCalculation(result, edge);
+            this.recursiveMeanCalculation(result, edge, node);
         }
         return result.sum/result.numElem; //return the total mean
     }
@@ -195,7 +193,5 @@ public class TopologyGraphController {
             this.numElem = numElem;
         }
     }
-
-
 
 }
