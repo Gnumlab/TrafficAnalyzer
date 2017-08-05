@@ -46,7 +46,6 @@ public class AreaBolt extends BaseRichBolt {
         String jsonData = tuple.getString(0);
         try {
             this.controller.updateGraphTopology(jsonData);
-
         } catch (IOException e) {
             e.printStackTrace();
         } finally {

@@ -41,10 +41,11 @@ public class RedisRepository {
         //RLock lock = redissonClient.getLock(node.getGraphKey());
         System.err.println("try insert " + node.getGraphKey() + " archi " + node.getNumberOfEdges() );
         Map<String, Node> map = redissonClient.getMap("graphArea");
+        map.putIfAbsent(node.getGraphKey(), node);
+        //you only want to insert if not present, not updating
 
-        if (map.putIfAbsent(node.getGraphKey(), node) == null)
-            this.updateNode(node);  /* return null if node is already into db */
-
+        //if (map.putIfAbsent(node.getGraphKey(), node) == null)
+            //this.updateNode(node);  /* return null if node is already into db */
     }
 
     /* replace node into db in order to update the values. This method implies node already exists into db */
