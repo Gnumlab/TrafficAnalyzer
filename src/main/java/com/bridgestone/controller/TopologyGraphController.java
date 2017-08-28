@@ -42,7 +42,6 @@ public class TopologyGraphController {
         Node arrivalNode = this.makeNode(msg, 2);
 
         Edge edge = this.makeEdge(msg, startingNode, arrivalNode);
-        Edge reverseEdge = this.makeEdge(msg, startingNode, arrivalNode);
         System.out.println("UPDATE GRAPH\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" + startingNode.getGraphKey());
 
         /**IMPORTANT:
@@ -56,7 +55,6 @@ public class TopologyGraphController {
             // new section and edge to insert
             //remember vectors are added to the starting size
             startingNode.addEdge(edge);
-            arrivalNode.addEdge(reverseEdge);
             this.topology.addNode(startingNode);
             this.repository.insertNode(startingNode);
             this.topology.addNode(arrivalNode); // even the arrival section might be new !!!
@@ -69,11 +67,9 @@ public class TopologyGraphController {
 
             Node updatingNode = this.getNodeByCoordinates(startingNode.getX(), startingNode.getY()); //taking the section to add the edge
             updatingNode.addEdge(edge);
-            arrivalNode.addEdge(reverseEdge);
-
 
             this.topology.updateNode(updatingNode);
-            this.repository.insertNode(updatingNode);
+            this.repository.updateNode(updatingNode);
 
             this.topology.addNode(arrivalNode);
             this.repository.insertNode(arrivalNode);

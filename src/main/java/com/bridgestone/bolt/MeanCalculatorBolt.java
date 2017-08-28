@@ -55,19 +55,16 @@ public class MeanCalculatorBolt extends BaseRichBolt {
             Edge edge = JSonParser.makeEdge(msg, startingNode, arrivalNode);
             edge = startingNode.getEdge(Edge.makeGraphEdgeKey(edge));
 
-            if(edge == null){
+            if(edge == null){// a new edge
                 System.err.println(" LUI NON HA EDGE"+ msg +"\n\n\n\n\n\n\n\n\n\n");
-
+                startingNode.addEdge(edge); //insertig new node
             } else {
 
                 edge.updateSpeed(msg.get("speed").asDouble());
-
-
-                this.repository.updateNode(startingNode);
-
-
-                _collector.emit(new Values(Edge.makeGraphEdgeKey(edge), edge.getSpeed()));
             }
+
+            this.repository.updateNode(startingNode); // saving the updated node in repository
+            _collector.emit(new Values(Edge.makeGraphEdgeKey(edge), edge.getSpeed()));
 
             /*Edge edge = JSonParser.makeEdge(msg, startingNode, arrivalNode);
 
