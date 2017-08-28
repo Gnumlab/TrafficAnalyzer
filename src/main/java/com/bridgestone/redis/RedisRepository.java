@@ -41,18 +41,87 @@ public class RedisRepository {
         //RLock lock = redissonClient.getLock(node.getGraphKey());
         System.err.println("try insert " + node.getGraphKey() + " archi " + node.getNumberOfEdges() );
         Map<String, Node> map = redissonClient.getMap("graphArea");
-        map.putIfAbsent(node.getGraphKey(), node);
+        //map.putIfAbsent(node.getGraphKey(), node);
         //you only want to insert if not present, not updating
 
-        //if (map.putIfAbsent(node.getGraphKey(), node) == null)
-            //this.updateNode(node);  /* return null if node is already into db */
+        if (map.putIfAbsent(node.getGraphKey(), node) == null)
+            this.updateNode(node);  /* return null if node is already into db */
     }
+
 
     /* replace node into db in order to update the values. This method implies node already exists into db */
     public void updateNode(Node node){
         Map<String, Node> map = redissonClient.getMap("graphArea");
         map.replace(node.getGraphKey(), node);
     }
+
+
+
+    public void insertEdge(String edgeKey, String value){
+        /**insert an edge into a new "table" of redis. Value will be the key identifiers the street
+         * NB: edge key already contains all the information about the edge
+         */
+
+
+        Map<String, String> map = redissonClient.getMap("streets");
+        //map.putIfAbsent(node.getGraphKey(), node);
+        //you only want to insert if not present, not updating
+
+        map.putIfAbsent(edgeKey, value);
+
+
+
+    }
+
+    public void updateEdge(String edgeKey, String value){
+        /**insert an edge into a new "table" of redis. Value will be the key identifiers the street
+         * NB: edge key already contains all the information about the edge
+         */
+
+
+        Map<String, String> map = redissonClient.getMap("streets");
+        //map.putIfAbsent(node.getGraphKey(), node);
+        //you only want to insert if not present, not updating
+
+        map.put(edgeKey, value);
+
+
+    }
+
+    public void insertStreetSpeed(String key, Double value){
+        Map<String, String> map = redissonClient.getMap("streets");
+        //map.putIfAbsent(node.getGraphKey(), node);
+        //you only want to insert if not present, not updating
+
+        map.putIfAbsent(key, value.toString());
+    }
+
+    public void updateStreetSpeed(String key, Double value){
+        Map<String, String> map = redissonClient.getMap("streets");
+        //map.putIfAbsent(node.getGraphKey(), node);
+        //you only want to insert if not present, not updating
+
+        map.put(key, value.toString());
+    }
+
+    public String getEdge(String key){
+        Map<String, String> map = redissonClient.getMap("streets");
+
+        return map.get(key);
+
+    }
+
+    public Double getStreetSpeed(String key){
+
+        Map<String, String> map = redissonClient.getMap("streets");
+
+        return new Double(map.get(key));
+
+
+    }
+
+
+
 
 
 
@@ -73,24 +142,20 @@ public class RedisRepository {
     }
 */
 
-    public void stampa(String key){
+    public void stampa(){
 
         RedissonClient client = Redisson.create();
 
         System.err.println("staMPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-        Map<String, Node> map = client.getMap("graphArea");
+        Map<String, String> map = client.getMap("streets");
         System.err.println("È " + map.toString());
 
-        Node node = map.get(key);
 
         //if(arcs != null)
 
 
-        Map<String, Edge> arcs = node.getEdges();
-        Set<String> keys = arcs.keySet();
-
-        for(String chiave : keys){
-            System.err.println("    " + arcs.get(chiave).getEndingNode() + arcs.get(chiave).getSpeed());
+        for(String chiave : map.keySet()){
+            System.err.println(" VALORE   " +chiave);
         }
 
 
@@ -108,10 +173,36 @@ public class RedisRepository {
         redissonClient.shutdown();
     }
 
+    public Node getNode(String nodeKey) {
+
+        Map<String, Node> map = redissonClient.getMap("graphArea");
+
+        return map.get(nodeKey);
+
+
+    }
+
+    public Collection<Node> getAll(){
+
+        Map<String, Node> map = redissonClient.getMap("graphArea");
+
+
+        return map.values();
+    }
+
     public static void main( String[] args){
         //Redisson.create();
         RedisRepository redisRepository = RedisRepository.getInstance();
         //redisRepository.insertNode(new Node(34.3, 56.8));
+    }
+
+    public double getMean(String startKey, String arrivalKey) {
+
+        Map<String, Node> map = redissonClient.getMap("graphArea");
+
+        Node node = map.get(startKey);
+        return node.getEdge(arrivalKey). getSpeed();
+
     }
 }
 

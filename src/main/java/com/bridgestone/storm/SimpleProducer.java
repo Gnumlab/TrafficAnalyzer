@@ -51,7 +51,7 @@ public class SimpleProducer {
 
         for (int i = 1; i <= 10; i++)
             producer.send(new ProducerRecord<String, String>(topicName,
-                 jsonFormat(52.12, 41.34, 52.1204 + i*10000, 41.5861, i) ));
+                 jsonFormat(52.12, 41.34, i*10, 41, i) ));
         System.out.println("Message sent successfully");
         producer.close();
     }

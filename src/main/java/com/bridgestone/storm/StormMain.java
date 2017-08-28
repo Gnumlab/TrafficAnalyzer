@@ -1,15 +1,14 @@
 package com.bridgestone.storm;
 
-import kafka.Kafka;
+import com.bridgestone.bolt.MeanCalculatorBolt;
+import com.bridgestone.bolt.UpdateMeanStreetBolt;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.StormSubmitter;
 import org.apache.storm.kafka.*;
-import org.apache.storm.kafka.trident.OpaqueTridentKafkaSpout;
-import org.apache.storm.kafka.trident.TridentKafkaConfig;
 import org.apache.storm.spout.SchemeAsMultiScheme;
 import org.apache.storm.topology.TopologyBuilder;
-import org.apache.storm.trident.TridentTopology;
+import org.apache.storm.tuple.Fields;
 import org.apache.storm.utils.Utils;
 
 import java.util.UUID;
@@ -20,6 +19,9 @@ import java.util.UUID;
 public class StormMain {
 
     public static void main(String[] args) throws Exception {
+
+
+
 
         TopologyBuilder builder = new TopologyBuilder();
         String zkConnString = "localhost:2181";
@@ -44,6 +46,8 @@ public class StormMain {
         //builder.setBolt("exclaim1", new ExclamationBolt(), 3).shuffleGrouping("StreetInfo");
         //builder.setBolt("exclaim2", new ExclamationBolt(), 2).shuffleGrouping("exclaim1");
         builder.setBolt("mean", new MeanCalculatorBolt(),3).shuffleGrouping("StreetInfo");
+        builder.setBolt("street", new UpdateMeanStreetBolt(),3).fieldsGrouping("mean", new Fields("edge"));
+
 
         Config conf = new Config();
         conf.setDebug(false);

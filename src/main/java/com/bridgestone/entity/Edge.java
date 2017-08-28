@@ -7,7 +7,7 @@ public class Edge {
 
     //private Node startNode; // don't know if necessary: probably not;
     // but it's stylish to have simmetry
-
+    private String startNode;
     private String endingNode; // the section pointed at the arrival of data
 
     private double speed; // probably a mean speed while receiving data?
@@ -15,17 +15,17 @@ public class Edge {
 
     public Edge(){}
 
-    public Edge(String endingNode, int speed) {
-        //this.startNode = startNode;
+    public Edge(String startNode, String endingNode, int speed) {
+        this.startNode = startNode;
         this.endingNode = endingNode;
         this.speed = speed;
     }
 
-    /*public Node getStartNode() {
+    public String getStartNode() {
         return startNode;
     }
 
-    public void setStartNode(Node startNode) {
+   /* public void setStartNode(Node startNode) {
         this.startNode = startNode;
     }*/
 
@@ -45,7 +45,13 @@ public class Edge {
         this.speed = speed;
     }
 
+
+
     public static String makeGraphEdgeKey(Edge edge){
-        return "(" + edge.getEndingNode() + ")";
+        return "(" + edge.getStartNode() + edge.getEndingNode() + ")";
+    }
+
+    public void updateSpeed(double speed) {
+        this.speed = this.speed*0.4 + speed*0.6;
     }
 }

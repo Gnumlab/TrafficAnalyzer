@@ -41,7 +41,8 @@ public class TopologyGraphController {
         Node startingNode = this.makeNode(msg, 1);
         Node arrivalNode = this.makeNode(msg, 2);
 
-        Edge edge = this.makeEdge(msg, arrivalNode);
+        Edge edge = this.makeEdge(msg, startingNode, arrivalNode);
+        Edge reverseEdge = this.makeEdge(msg, startingNode, arrivalNode);
         System.out.println("UPDATE GRAPH\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" + startingNode.getGraphKey());
 
         /**IMPORTANT:
@@ -55,6 +56,7 @@ public class TopologyGraphController {
             // new section and edge to insert
             //remember vectors are added to the starting size
             startingNode.addEdge(edge);
+            arrivalNode.addEdge(reverseEdge);
             this.topology.addNode(startingNode);
             this.repository.insertNode(startingNode);
             this.topology.addNode(arrivalNode); // even the arrival section might be new !!!
@@ -67,6 +69,7 @@ public class TopologyGraphController {
 
             Node updatingNode = this.getNodeByCoordinates(startingNode.getX(), startingNode.getY()); //taking the section to add the edge
             updatingNode.addEdge(edge);
+            arrivalNode.addEdge(reverseEdge);
 
 
             this.topology.updateNode(updatingNode);
@@ -78,12 +81,21 @@ public class TopologyGraphController {
 
         } else {//both the sections exists
             System.err.println("ALLL INNNNNNNNNNNN");
-            //the edge already exists: updating the mean speed of the already existing edge
+            //the edge may not exists: create or updating the mean speed of the already existing edge
             Node updatingNode = this.getNodeByCoordinates(startingNode.getX(),
                     startingNode.getY()); //taking the section containing the edge
 
             // taking and updating the edge
             Edge updatingEdge = updatingNode.getEdge(Edge.makeGraphEdgeKey(edge));
+
+            if (updatingEdge == null){
+                //case: the edge doesn't exist
+                updatingEdge = this.makeEdge(msg, updatingNode, arrivalNode);
+                updatingEdge.setSpeed(edge.getSpeed());
+                updatingNode.addEdge(updatingEdge);
+
+            }
+
             updatingEdge.setSpeed(updatingEdge.getSpeed() * 0.4 + edge.getSpeed() * 0.6);
             updatingNode.updateEdge(updatingEdge);
             this.topology.updateNode(updatingNode);
@@ -109,15 +121,15 @@ public class TopologyGraphController {
         return new Node(x, y);
     }
 
-    private Edge makeEdge(JsonNode jsonData, Node arrivalNode){
+    private Edge makeEdge(JsonNode jsonData, Node startingNode, Node arrivalNode){
 
         int speed = jsonData.get("speed").asInt();
-        return new Edge(arrivalNode.getGraphKey(), speed);
+        return new Edge(startingNode.getGraphKey(), arrivalNode.getGraphKey(), speed);
     }
 
 
     //if a node has more than 2 starting vectors it is a crossroad
-    private boolean checkIfCrossroad(Node node){
+    public boolean checkIfCrossroad(Node node){
         if(node.getNumberOfEdges() > 2)
             return true;
         return false;

@@ -1,13 +1,9 @@
 package com.bridgestone.bolt;
 
 import com.bridgestone.controller.TopologyGraphController;
-import com.bridgestone.redis.RedisRepository;
-import com.bridgestone.storm.MeanCalculatorBolt;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
-import org.apache.storm.StormSubmitter;
 import org.apache.storm.kafka.*;
 import org.apache.storm.spout.SchemeAsMultiScheme;
 import org.apache.storm.task.OutputCollector;
@@ -83,11 +79,11 @@ public class AreaBolt extends BaseRichBolt {
 
 
 
-        builder.setSpout("StreetInfo", new KafkaSpout(kafkaSpoutConfig),5);
+        builder.setSpout("StreetInfo", new KafkaSpout(kafkaSpoutConfig),1);
         //parallelism hint: number of thread for node
         //builder.setBolt("exclaim1", new ExclamationBolt(), 3).shuffleGrouping("StreetInfo");
         //builder.setBolt("exclaim2", new ExclamationBolt(), 2).shuffleGrouping("exclaim1");
-        builder.setBolt("mean", new AreaBolt(),8).shuffleGrouping("StreetInfo");
+        builder.setBolt("mean", new AreaBolt(),1).shuffleGrouping("StreetInfo");
 
         Config conf = new Config();
         conf.setDebug(false);
