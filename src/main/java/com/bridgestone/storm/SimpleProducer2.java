@@ -10,7 +10,7 @@ import java.util.Properties;
 /**
  * Created by francesco on 24/07/17.
  */
-public class SimpleProducer {
+public class SimpleProducer2 {
 
     public static void main(String[] args) throws Exception {
 
@@ -51,28 +51,28 @@ public class SimpleProducer {
         Producer<String, String> producer = new KafkaProducer<String, String>(props);
 
 
+        String data = "[";
 
-        producer.send(new ProducerRecord<String, String>(topicName,
-                jsonFormat(52.12 , 41.34 , 52.12 + 50 + 1, 41.34 +50 +1, 0)));
-        Utils.sleep(10);
-
-        producer.send(new ProducerRecord<String, String>(topicName,
-                jsonFormat(52.12 , 41.34 , 152.12 + 50 + 1, 41.34 +50 +1, 0)));
+        data = data + jsonFormat(52.12 , 41.34 , 52.12 + 50 + 1, 41.34 +50 +1, 0);
+        data = data + "," + jsonFormat(52.12 , 41.34 , 152.12 + 50 + 1, 41.34 +50 +1, 0);
 
         for (int i = 0; i <= 1000; i++) {
             //Utils.sleep(1);
 
-            producer.send(new ProducerRecord<String, String>(topicName,
-                    jsonFormat(52.12 , 41.34 , 52.12 + i + 1, 41.34 +i +1, i)));
+            data = data + "," + jsonFormat(52.12 + i , 41.34 + i , 52.12 + i + 1, 41.34 +i +1, i);
             //System.out.println("Message sent successfully");
         }
+
+
+        data = data + "]";
+        System.err.println(data);
+        producer.send(new ProducerRecord<String, String>(topicName, data));
         producer.close();
     }
 
     private static String jsonFormat(double x1, double y1, double x2, double y2, int speed){
         return "{\"x1\":" + Double.toString(x1) + ",\"y1\":" + Double.toString(y1)
                 + ",\"x2\":" + Double.toString(x2)+ ",\"y2\":" + Double.toString(y2) +
-        ",\"speed\":" + Integer.toString(speed) + "}" +
-                "";
+        ",\"speed\":" + Integer.toString(speed) + "}";
     }
 }

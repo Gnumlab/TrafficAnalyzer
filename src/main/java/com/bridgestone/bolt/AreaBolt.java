@@ -27,7 +27,7 @@ public class AreaBolt extends BaseRichBolt {
     ObjectMapper mapper;
     TopologyGraphController controller;
 
-    static double speedMean;
+    static double count = 0;
 
     @Override
     public void prepare(Map conf, TopologyContext context, OutputCollector collector) {
@@ -45,8 +45,14 @@ public class AreaBolt extends BaseRichBolt {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
+            this.add();
             _collector.ack(tuple);
         }
+    }
+
+    public synchronized void add(){
+        count++;
+        System.err.println("COUNTERLEREIRAORSAOFR           " + count);
     }
 
     @Override
@@ -79,11 +85,13 @@ public class AreaBolt extends BaseRichBolt {
 
 
 
-        builder.setSpout("StreetInfo", new KafkaSpout(kafkaSpoutConfig),1);
+        builder.setSpout("StreetInfo", new KafkaSpout(kafkaSpoutConfig),10);
         //parallelism hint: number of thread for node
         //builder.setBolt("exclaim1", new ExclamationBolt(), 3).shuffleGrouping("StreetInfo");
         //builder.setBolt("exclaim2", new ExclamationBolt(), 2).shuffleGrouping("exclaim1");
-        builder.setBolt("mean", new AreaBolt(),1).shuffleGrouping("StreetInfo");
+        builder.setBolt("split", new SplitterBolt(),10).shuffleGrouping("StreetInfo");
+        builder.setBolt("mean", new AreaBolt(),10).shuffleGrouping("split");
+
 
         Config conf = new Config();
         conf.setDebug(false);

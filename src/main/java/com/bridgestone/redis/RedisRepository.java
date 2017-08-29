@@ -36,7 +36,7 @@ public class RedisRepository {
 
 
     /* Insert a new node into db */
-    public void insertNode(Node node){
+    public  void insertNode(Node node){
 
         RLock lock = redissonClient.getLock(node.getGraphKey());
         lock.lock();
@@ -51,8 +51,9 @@ public class RedisRepository {
 
 
     /* replace node into db in order to update the values. This method implies node already exists into db */
-    public void updateNode(Node node){
+    public  void updateNode(Node node){
         RLock lock = redissonClient.getLock(node.getGraphKey());
+        //while(lock.isLocked()) ;
         lock.lock();
         System.err.println("try update " + node.getGraphKey() + " archi " + node.getNumberOfEdges() );
         Map<String, Node> map = redissonClient.getMap("graphArea");
@@ -67,38 +68,30 @@ public class RedisRepository {
          * NB: edge key already contains all the information about the edge
          */
 
-
+        RLock lock = redissonClient.getLock(edgeKey);
+        lock.lock();
         Map<String, String> map = redissonClient.getMap("streets");
         //map.putIfAbsent(node.getGraphKey(), node);
         //you only want to insert if not present, not updating
 
         map.putIfAbsent(edgeKey, value);
+        lock.unlock();
 
 
 
     }
 
     public void updateEdge(String edgeKey, String value){
-        /**insert an edge into a new "table" of redis. Value will be the key identifiers the street
-         * NB: edge key already contains all the information about the edge
-         */
 
-
+        RLock lock = redissonClient.getLock(edgeKey);
+        lock.lock();
         Map<String, String> map = redissonClient.getMap("streets");
         //map.putIfAbsent(node.getGraphKey(), node);
         //you only want to insert if not present, not updating
 
         map.put(edgeKey, value);
+        lock.unlock();
 
-
-    }
-
-    public void insertStreetSpeed(String key, Double value){
-        Map<String, String> map = redissonClient.getMap("streets");
-        //map.putIfAbsent(node.getGraphKey(), node);
-        //you only want to insert if not present, not updating
-
-        map.putIfAbsent(key, value.toString());
     }
 
     public void updateStreetSpeed(String key, Double value){
@@ -109,22 +102,41 @@ public class RedisRepository {
         map.put(key, value.toString());
     }
 
-    public String getEdge(String key){
+    public void insertStreetSpeed(String key, Double value){
+        RLock lock = redissonClient.getLock(key);
+        lock.lock();
         Map<String, String> map = redissonClient.getMap("streets");
+        //map.putIfAbsent(node.getGraphKey(), node);
+        //you only want to insert if not present, not updating
 
+        map.putIfAbsent(key, value.toString());
+        lock.unlock();
+    }
+
+    public String getEdge(String key){
+        RLock lock = redissonClient.getLock(key);
+        lock.lock();
+        Map<String, String> map = redissonClient.getMap("streets");
+        lock.unlock();
         return map.get(key);
 
     }
 
     public Double getStreetSpeed(String key){
-
+        RLock lock = redissonClient.getLock(key);
+        lock.lock();
         Map<String, String> map = redissonClient.getMap("streets");
-
+        lock.unlock();
         return new Double(map.get(key));
 
 
     }
 
+
+
+    public RLock getLock (String key){
+        return this.redissonClient.getLock(key);
+    }
 
 
 
@@ -179,9 +191,12 @@ public class RedisRepository {
     }
 
     public Node getNode(String nodeKey) {
+        RLock lock = redissonClient.getLock(nodeKey);
+        lock.lock();
 
         Map<String, Node> map = redissonClient.getMap("graphArea");
 
+        lock.unlock();
         return map.get(nodeKey);
 
 

@@ -57,7 +57,7 @@ public class MeanCalculatorBolt extends BaseRichBolt {
 
             if(edge == null){// a new edge
                 System.err.println(" LUI NON HA EDGE"+ msg +"\n\n\n\n\n\n\n\n\n\n");
-                startingNode.addEdge(edge); //insertig new node
+                //startingNode.addEdge(edge); //insertig new node
             } else {
 
                 edge.updateSpeed(msg.get("speed").asDouble());

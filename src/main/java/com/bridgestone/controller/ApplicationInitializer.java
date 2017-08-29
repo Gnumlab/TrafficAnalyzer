@@ -28,11 +28,10 @@ public class ApplicationInitializer {
     public void createGraph(){
 
         Collection<Node> nodes =  repository.getAll();
-
         for(Node node: nodes){
-            this.graph.addNode(node);
-            System.err.println(node.getGraphKey());
+            System.err.println("nodo: " + node.getGraphKey() + "archi: " + node.getNumberOfEdges());
 
+            this.graph.addNode(node);
         }
 
     }
@@ -44,12 +43,16 @@ public class ApplicationInitializer {
         Map<String, Node> nodesMap = graph.getGraph();
         Collection<Node> nodes = nodesMap.values();
         Integer key = new Integer("0");
+
+        int cross = 0, nocross = 0, total = 0;
         for(Node node: nodes){
+
+            total++;
             System.err.print("È incrocio? ");
             Collection<Edge> edges = node.getEdges().values();
             if (topologyGraphController.checkIfCrossroad(node)){
                 System.err.println("Incrocio!" + node.getGraphKey());
-
+                cross++;
                 for(Edge edge: edges){
                     streetCalc(edge, node, key);
                     key++;
@@ -58,6 +61,7 @@ public class ApplicationInitializer {
             }
             else{
                 System.err.println("No incrocio!" + node.getNumberOfEdges());
+                nocross++;
 
                 for(Edge edge: edges){
 
@@ -70,7 +74,9 @@ public class ApplicationInitializer {
 
         }
 
+        System.out.println(total +" "+ nocross +" " + cross);
         this.repository.stampa();
+        this.repository.disconnectFromDB();
 
 
 
@@ -109,9 +115,6 @@ public class ApplicationInitializer {
         Node arrivalNode = this.graph.getNodeByKey(startingEdge.getEndingNode());
 
 
-        /*write arrivalNode into redis with key*/
-        this.repository.updateEdge(Edge.makeGraphEdgeKey(startingEdge), key.toString());
-        this.repository.insertStreetSpeed(key.toString(), new Double("0"));
 
 
         if(checkIfCrossroad(arrivalNode)){
@@ -120,6 +123,10 @@ public class ApplicationInitializer {
              */
             return;
         }
+
+        /*write arrivalNode into redis with key*/
+        this.repository.updateEdge(Edge.makeGraphEdgeKey(startingEdge), key.toString());
+        this.repository.updateStreetSpeed(key.toString(), new Double("0"));
         //propagation of the operation until a crossroad
         //updating starting vector to the new vector to process
         startingEdge = this.getForwardEdge(startingNode, arrivalNode);

@@ -33,16 +33,17 @@ public class TopologyGraphController {
     }
 
 
-    public void updateGraphTopology(String jsonData) throws IOException {
+    public synchronized void updateGraphTopology(String jsonData) throws IOException {
 
 
+        //this.repository.connectDB();
 
         JsonNode msg = mapper.readTree(jsonData);
         Node startingNode = this.makeNode(msg, 1);
         Node arrivalNode = this.makeNode(msg, 2);
 
         Edge edge = this.makeEdge(msg, startingNode, arrivalNode);
-        System.out.println("UPDATE GRAPH\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" + startingNode.getGraphKey());
+        System.out.println("UPDATE GRAPH " + edge.getStartNode() +"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 
         /**IMPORTANT:
          * the GraphArea method 'addSection()' uses the 'putIfAbsent()' operation of the HashMap class:
@@ -59,6 +60,7 @@ public class TopologyGraphController {
             this.repository.insertNode(startingNode);
             this.topology.addNode(arrivalNode); // even the arrival section might be new !!!
             this.repository.insertNode(arrivalNode);
+
 
 
         } else if (!this.topology.contains(arrivalNode)) {
@@ -78,8 +80,7 @@ public class TopologyGraphController {
         } else {//both the sections exists
             System.err.println("ALLL INNNNNNNNNNNN");
             //the edge may not exists: create or updating the mean speed of the already existing edge
-            Node updatingNode = this.getNodeByCoordinates(startingNode.getX(),
-                    startingNode.getY()); //taking the section containing the edge
+            Node updatingNode = this.getNodeByCoordinates(startingNode.getX(), startingNode.getY()); //taking the section containing the edge
 
             // taking and updating the edge
             Edge updatingEdge = updatingNode.getEdge(Edge.makeGraphEdgeKey(edge));
@@ -97,11 +98,16 @@ public class TopologyGraphController {
             this.topology.updateNode(updatingNode);
 
 
-            this.repository.insertNode(updatingNode);
+            this.repository.updateNode(updatingNode);
+
+
 
 
         }
 
+        //this.repository.stampa();
+
+        //this.repository.disconnectFromDB();
 
 
     }
