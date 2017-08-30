@@ -48,7 +48,7 @@ public class Edge {
 
 
     public static String makeGraphEdgeKey(Edge edge){
-        return "(" + edge.getStartNode() + edge.getEndingNode() + ")";
+        return edge.getStartNode() + "-" + edge.getEndingNode();
     }
 
     public void updateSpeed(double speed) {

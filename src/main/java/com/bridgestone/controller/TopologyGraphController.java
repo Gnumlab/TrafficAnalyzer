@@ -33,7 +33,7 @@ public class TopologyGraphController {
     }
 
 
-    public synchronized void updateGraphTopology(String jsonData) throws IOException {
+    public void updateGraphTopology(String jsonData) throws IOException {
 
 
         //this.repository.connectDB();
@@ -43,6 +43,7 @@ public class TopologyGraphController {
         Node arrivalNode = this.makeNode(msg, 2);
 
         Edge edge = this.makeEdge(msg, startingNode, arrivalNode);
+        Edge reverseEdge = this.makeEdge(msg, arrivalNode, startingNode);
         System.out.println("UPDATE GRAPH " + edge.getStartNode() +"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 
         /**IMPORTANT:
@@ -51,58 +52,65 @@ public class TopologyGraphController {
          * since it won't insert the section a second time
          */
 
-        if (!this.topology.contains(startingNode)) {
-            System.err.println("Non c0è nulla");
-            // new section and edge to insert
-            //remember vectors are added to the starting size
-            startingNode.addEdge(edge);
-            this.topology.addNode(startingNode);
-            this.repository.insertNode(startingNode);
-            this.topology.addNode(arrivalNode); // even the arrival section might be new !!!
-            this.repository.insertNode(arrivalNode);
+
+        synchronized (this) {
+            //TopologyGtaphController is a singleton then this is unique
+            if (!this.topology.contains(startingNode)) {
+                System.err.println("Non c0è nulla");
+                // new section and edge to insert
+                //remember vectors are added to the starting size
+                startingNode.addEdge(edge);
+                arrivalNode.addEdge(reverseEdge);
+                this.topology.addNode(startingNode);
+                this.repository.insertNode(startingNode);
+                this.topology.addNode(arrivalNode); // even the arrival section might be new !!!
+                this.repository.insertNode(arrivalNode);
 
 
+            } else if (!this.topology.contains(arrivalNode)) {
+                System.err.println("Non solo uno nulla");
+                //the starting section exists but not the arrival one: there is always a new edge to insert
 
-        } else if (!this.topology.contains(arrivalNode)) {
-            System.err.println("Non solo uno nulla");
-            //the starting section exists but not the arrival one: there is always a new edge to insert
+                Node updatingNode = this.getNodeByCoordinates(startingNode.getX(), startingNode.getY()); //taking the section to add the edge
+                updatingNode.addEdge(edge);
+                arrivalNode.addEdge(reverseEdge);
 
-            Node updatingNode = this.getNodeByCoordinates(startingNode.getX(), startingNode.getY()); //taking the section to add the edge
-            updatingNode.addEdge(edge);
+                this.topology.updateNode(updatingNode);
+                this.repository.updateNode(updatingNode);
 
-            this.topology.updateNode(updatingNode);
-            this.repository.updateNode(updatingNode);
-
-            this.topology.addNode(arrivalNode);
-            this.repository.insertNode(arrivalNode);
+                this.topology.addNode(arrivalNode);
+                this.repository.insertNode(arrivalNode);
 
 
-        } else {//both the sections exists
-            System.err.println("ALLL INNNNNNNNNNNN");
-            //the edge may not exists: create or updating the mean speed of the already existing edge
-            Node updatingNode = this.getNodeByCoordinates(startingNode.getX(), startingNode.getY()); //taking the section containing the edge
+            } else {//both the sections exists
+                System.err.println("ALLL INNNNNNNNNNNN");
+                //the edge may not exists: create or updating the mean speed of the already existing edge
+                Node updatingNode = this.getNodeByCoordinates(startingNode.getX(), startingNode.getY()); //taking the section containing the edge
 
-            // taking and updating the edge
-            Edge updatingEdge = updatingNode.getEdge(Edge.makeGraphEdgeKey(edge));
+                // taking and updating the edge
+                Edge updatingEdge = updatingNode.getEdge(Edge.makeGraphEdgeKey(edge));
 
-            if (updatingEdge == null){
-                //case: the edge doesn't exist
-                updatingEdge = this.makeEdge(msg, updatingNode, arrivalNode);
-                updatingEdge.setSpeed(edge.getSpeed());
-                updatingNode.addEdge(updatingEdge);
+                if (updatingEdge == null) {
+                    //case: the edge doesn't exist
+
+                    /** edges always inserted in both sides: if the first doesn't exist so it won't the other one
+                     *  there is need to update both nodes
+                     */
+                    arrivalNode = this.topology.getNodeByKey(arrivalNode.getGraphKey());
+
+                    updatingNode.addEdge(edge);
+                    arrivalNode.addEdge(reverseEdge);
+
+                    /*updatingEdge.setSpeed(updatingEdge.getSpeed() * 0.4 + edge.getSpeed() * 0.6);
+                    updatingNode.updateEdge(updatingEdge);*/
+                    this.topology.updateNode(updatingNode);
+                    this.repository.updateNode(updatingNode);
+
+                    this.topology.updateNode(arrivalNode);
+                    this.repository.updateNode(arrivalNode);
+                }
 
             }
-
-            updatingEdge.setSpeed(updatingEdge.getSpeed() * 0.4 + edge.getSpeed() * 0.6);
-            updatingNode.updateEdge(updatingEdge);
-            this.topology.updateNode(updatingNode);
-
-
-            this.repository.updateNode(updatingNode);
-
-
-
-
         }
 
         //this.repository.stampa();

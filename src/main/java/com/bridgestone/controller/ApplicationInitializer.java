@@ -4,6 +4,7 @@ import com.bridgestone.entity.Edge;
 import com.bridgestone.entity.GraphArea;
 import com.bridgestone.entity.Node;
 import com.bridgestone.redis.RedisRepository;
+import com.bridgestone.utils.StreetInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
@@ -16,11 +17,15 @@ import java.util.*;
 public class ApplicationInitializer {
 
     private GraphArea graph;
+    private HashMap<String, Edge> standByEdges;     //edges that are met but are not inserted into a street
+    private HashMap<String, Edge> processed;
 
     private RedisRepository repository;
     private ApplicationInitializer() {
         this.repository = RedisRepository.getInstance();
         this.graph = new GraphArea();
+        this.standByEdges = new HashMap<>();
+        this.processed = new HashMap<>();
     }
 
 
@@ -43,38 +48,37 @@ public class ApplicationInitializer {
         Map<String, Node> nodesMap = graph.getGraph();
         Collection<Node> nodes = nodesMap.values();
         Integer key = new Integer("0");
-
-        int cross = 0, nocross = 0, total = 0;
         for(Node node: nodes){
 
-            total++;
-            System.err.print("È incrocio? ");
             Collection<Edge> edges = node.getEdges().values();
             if (topologyGraphController.checkIfCrossroad(node)){
-                System.err.println("Incrocio!" + node.getGraphKey());
-                cross++;
                 for(Edge edge: edges){
-                    streetCalc(edge, node, key);
+                    streetCalc(edge, node, key, 1);
                     key++;
                 }
 
             }
             else{
-                System.err.println("No incrocio!" + node.getNumberOfEdges());
-                nocross++;
 
                 for(Edge edge: edges){
-
-                    this.repository.insertEdge(Edge.makeGraphEdgeKey(edge), key.toString());
-                    this.repository.insertStreetSpeed(key.toString(), new Double("0"));
-                    key++;
+                    this.standByEdges.put(Edge.makeGraphEdgeKey(edge), edge);
                 }
-
             }
-
         }
 
-        System.out.println(total +" "+ nocross +" " + cross);
+        Collection<Edge> edges = this.standByEdges.values();
+
+        for(Edge edge : edges){
+            if(!this.processed.containsKey(Edge.makeGraphEdgeKey(edge))) {
+                Node node = this.graph.getNodeByKey(edge.getStartNode());
+                if (node.getNumberOfEdges() < 2) {
+                    //node has only one outcoming edge so it could be a start of a street
+                    streetCalc(edge, node, key, 1);
+                    key++;
+                }
+            }
+        }
+
         this.repository.stampa();
         this.repository.disconnectFromDB();
 
@@ -106,7 +110,7 @@ public class ApplicationInitializer {
     }
 
     /** N.B: the results will be updated into the instance result of CalculateMeanResult */
-    private void streetCalc(Edge startingEdge, Node startingNode, Integer key){
+    private void streetCalc(Edge startingEdge, Node startingNode, Integer key, int length){
         // updating the values of result for the current vector analyzed
 
         System.err.print("STREET CALC " +startingEdge.getEndingNode());
@@ -114,25 +118,40 @@ public class ApplicationInitializer {
 
         Node arrivalNode = this.graph.getNodeByKey(startingEdge.getEndingNode());
 
+        /*write arrivalNode into redis with key*/
+        this.repository.updateEdge(Edge.makeGraphEdgeKey(startingEdge), key.toString());
+        //this.standByEdges.remove(Edge.makeGraphEdgeKey(startingEdge));
+        this.processed.putIfAbsent(Edge.makeGraphEdgeKey(startingEdge), startingEdge);
 
+        System.err.println("FINEEE                   fineeeeeeeeeeeee " + key + " " + startingNode.getGraphKey());
 
 
         if(checkIfCrossroad(arrivalNode)){
             /*if next section is a crossroad this is the last value to sum:
             exit condition for the recursion
              */
+
+            System.err.println("FINEEE                   fineeeeeeeeeeeee " + key + " " + startingNode.getGraphKey());
+            this.repository.insertStreetSpeed(key.toString(), new StreetInfo(0, length));
+
             return;
         }
 
-        /*write arrivalNode into redis with key*/
-        this.repository.updateEdge(Edge.makeGraphEdgeKey(startingEdge), key.toString());
-        this.repository.updateStreetSpeed(key.toString(), new Double("0"));
+
         //propagation of the operation until a crossroad
         //updating starting vector to the new vector to process
         startingEdge = this.getForwardEdge(startingNode, arrivalNode);
-        if( startingEdge == null)
+        if( startingEdge == null) {
+
+            System.err.println("FINEEE                   fineeeeeeeeeeeee " + key + " " + startingNode.getGraphKey());
+
+
+            this.repository.insertStreetSpeed(key.toString(), new StreetInfo(0, length));
+
             return;
-        this.streetCalc(startingEdge, arrivalNode, key);
+        }
+
+        this.streetCalc(startingEdge, arrivalNode, key, ++length);
     }
 
 

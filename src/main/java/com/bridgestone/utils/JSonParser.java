@@ -22,4 +22,10 @@ public class JSonParser {
         int speed = jsonData.get("speed").asInt();
         return new Edge(startingNode.getGraphKey(), arrivalNode.getGraphKey(), speed);
     }
+
+    public static String jsonFormat(double x1, double y1, double x2, double y2, int speed){
+        return "{\"x1\":" + Double.toString(x1) + ",\"y1\":" + Double.toString(y1)
+                + ",\"x2\":" + Double.toString(x2)+ ",\"y2\":" + Double.toString(y2) +
+                ",\"speed\":" + Integer.toString(speed) + "}";
+    }
 }

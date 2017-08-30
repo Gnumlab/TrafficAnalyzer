@@ -57,7 +57,7 @@ public class Node {
     }
 
     public static String makeGraphNodeKey(double x, double y){
-        return "(" + Double.toString(x) + "," + Double.toString(y) + ")";
+        return Double.toString(x) + "." + Double.toString(y);
     }
 
     public HashMap<String, Edge> getEdges() {

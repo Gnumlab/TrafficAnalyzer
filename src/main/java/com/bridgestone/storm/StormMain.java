@@ -1,6 +1,8 @@
 package com.bridgestone.storm;
 
 import com.bridgestone.bolt.MeanCalculatorBolt;
+import com.bridgestone.bolt.ProducerBolt;
+import com.bridgestone.bolt.SplitterBolt;
 import com.bridgestone.bolt.UpdateMeanStreetBolt;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
@@ -45,8 +47,11 @@ public class StormMain {
         //parallelism hint: number of thread for node
         //builder.setBolt("exclaim1", new ExclamationBolt(), 3).shuffleGrouping("StreetInfo");
         //builder.setBolt("exclaim2", new ExclamationBolt(), 2).shuffleGrouping("exclaim1");
-        builder.setBolt("mean", new MeanCalculatorBolt(),3).shuffleGrouping("StreetInfo");
+        builder.setBolt("consumer", new SplitterBolt(),3).shuffleGrouping("StreetInfo");
+        builder.setBolt("mean", new MeanCalculatorBolt(),3).shuffleGrouping("consumer");
         builder.setBolt("street", new UpdateMeanStreetBolt(),3).fieldsGrouping("mean", new Fields("edge"));
+        builder.setBolt("producer", new ProducerBolt(),3).fieldsGrouping("street", new Fields("edge"));
+
 
 
         Config conf = new Config();

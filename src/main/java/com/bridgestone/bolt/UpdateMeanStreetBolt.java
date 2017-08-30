@@ -1,10 +1,7 @@
 package com.bridgestone.bolt;
 
-import com.bridgestone.entity.Edge;
-import com.bridgestone.entity.Node;
 import com.bridgestone.redis.RedisRepository;
-import com.bridgestone.utils.JSonParser;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.bridgestone.utils.StreetInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
@@ -14,7 +11,6 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -41,12 +37,14 @@ public class UpdateMeanStreetBolt extends BaseRichBolt {
         _collector.ack(tuple);*/
         System.err.println("Update STreet BOLT" + tuple.getString(0) + "!!!" + "\n\n\n\n\n\n\n\n\n\n");
 
-        String streetKey = this.repository.getEdge(tuple.getString(0));
-        Double speed = this.repository.getStreetSpeed(streetKey);
+        String edge = tuple.getString(0);
 
-        this.repository.updateStreetSpeed(streetKey, speed*0.4 + tuple.getDouble(1)*0.6);
+        String streetKey = this.repository.getEdge(edge);
+        StreetInfo streetInfo = this.repository.getStreetInfo(streetKey);
+        streetInfo.updateSpeed(tuple.getDouble(1));
+        this.repository.updateStreetSpeed(streetKey, streetInfo);
 
-        //_collector.emit(new Values(Edge.makeGraphEdgeKey(edge), edge.getSpeed()));
+        _collector.emit(new Values(edge, streetInfo.getSpeed()));
 
 
         _collector.ack(tuple);

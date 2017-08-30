@@ -51,22 +51,25 @@ public class SimpleProducer2 {
         Producer<String, String> producer = new KafkaProducer<String, String>(props);
 
 
-        String data = "[";
+        for(int j = 0; j < 1; j++) {
+            String data = "[";
 
-        data = data + jsonFormat(52.12 , 41.34 , 52.12 + 50 + 1, 41.34 +50 +1, 0);
-        data = data + "," + jsonFormat(52.12 , 41.34 , 152.12 + 50 + 1, 41.34 +50 +1, 0);
+            data = data + jsonFormat(52.12, 41.34, 52.12 + 50 + 1, 41.34 + 50 + 1, 0);
+            data = data + "," + jsonFormat(52.12, 41.34, 152.12 + 50 + 1, 41.34 + 50 + 1, 0);
 
-        for (int i = 0; i <= 1000; i++) {
-            //Utils.sleep(1);
+            for (int i = 0; i < 5; i++) {
+                //Utils.sleep(1);
 
-            data = data + "," + jsonFormat(52.12 + i , 41.34 + i , 52.12 + i + 1, 41.34 +i +1, i);
-            //System.out.println("Message sent successfully");
+                data = data + "," + jsonFormat(52.12 + i +j, 41.34 + i +j, 52.12 + i + 1 +j, 41.34 + i + 1 +j, i);
+                //System.out.println("Message sent successfully");
+            }
+
+
+            data = data + "]";
+            System.err.println(data);
+            producer.send(new ProducerRecord<String, String>(topicName, data));
         }
 
-
-        data = data + "]";
-        System.err.println(data);
-        producer.send(new ProducerRecord<String, String>(topicName, data));
         producer.close();
     }
 
