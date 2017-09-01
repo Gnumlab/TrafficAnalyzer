@@ -5,9 +5,6 @@ import com.bridgestone.entity.GraphArea;
 import com.bridgestone.entity.Node;
 import com.bridgestone.redis.RedisRepository;
 import com.bridgestone.utils.StreetInfo;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.redisson.Redisson;
-import org.redisson.api.RedissonClient;
 
 import java.util.*;
 
@@ -19,6 +16,8 @@ public class ApplicationInitializer {
     private GraphArea graph;
     private HashMap<String, Edge> standByEdges;     //edges that are met but are not inserted into a street
     private HashMap<String, Edge> processed;
+
+    private int length;
 
     private RedisRepository repository;
     private ApplicationInitializer() {
@@ -53,8 +52,12 @@ public class ApplicationInitializer {
             Collection<Edge> edges = node.getEdges().values();
             if (topologyGraphController.checkIfCrossroad(node)){
                 for(Edge edge: edges){
-                    streetCalc(edge, node, key, 1);
+                    this.length = 0;
+                    streetCalc(edge, key);
+                    this.repository.insertStreetSpeed(key.toString(), new StreetInfo(0, length));
+
                     key++;
+
                 }
 
             }
@@ -71,9 +74,12 @@ public class ApplicationInitializer {
         for(Edge edge : edges){
             if(!this.processed.containsKey(Edge.makeGraphEdgeKey(edge))) {
                 Node node = this.graph.getNodeByKey(edge.getStartNode());
-                if (node.getNumberOfEdges() < 2) {
+                if (node.getNumberOfEdges() <= 2) {
                     //node has only one outcoming edge so it could be a start of a street
-                    streetCalc(edge, node, key, 1);
+                    this.length = 0;
+                    streetCalc(edge, key);
+                    this.repository.insertStreetSpeed(key.toString(), new StreetInfo(0, length));
+
                     key++;
                 }
             }
@@ -109,21 +115,31 @@ public class ApplicationInitializer {
         return nextEdge;
     }
 
+
     /** N.B: the results will be updated into the instance result of CalculateMeanResult */
-    private void streetCalc(Edge startingEdge, Node startingNode, Integer key, int length){
+    private void streetCalc(Edge startingEdge, Integer key){
         // updating the values of result for the current vector analyzed
 
-        System.err.print("STREET CALC " +startingEdge.getEndingNode());
+        System.err.print("STREET CALC " + key);
+
+        if(this.processed.containsKey(Edge.makeGraphEdgeKey(startingEdge))){
+            //System.err.println("FINEEE                   pèrocessato " + key + " " + startingNode.getGraphKey());
+
+            //this.repository.updateStreetSpeed(key.toString(), new StreetInfo(0, length));
+
+            return;
+        }
 
 
         Node arrivalNode = this.graph.getNodeByKey(startingEdge.getEndingNode());
 
         /*write arrivalNode into redis with key*/
-        this.repository.updateEdge(Edge.makeGraphEdgeKey(startingEdge), key.toString());
+        this.repository.insertEdge(Edge.makeGraphEdgeKey(startingEdge), key.toString());
         //this.standByEdges.remove(Edge.makeGraphEdgeKey(startingEdge));
         this.processed.putIfAbsent(Edge.makeGraphEdgeKey(startingEdge), startingEdge);
+        this.length++;
 
-        System.err.println("FINEEE                   fineeeeeeeeeeeee " + key + " " + startingNode.getGraphKey());
+        //System.err.println("FINEEE                   fineeeeeeeeeeeee " + key + " " + startingNode.getGraphKey());
 
 
         if(checkIfCrossroad(arrivalNode)){
@@ -131,8 +147,7 @@ public class ApplicationInitializer {
             exit condition for the recursion
              */
 
-            System.err.println("FINEEE                   fineeeeeeeeeeeee " + key + " " + startingNode.getGraphKey());
-            this.repository.insertStreetSpeed(key.toString(), new StreetInfo(0, length));
+            //this.repository.updateStreetSpeed(key.toString(), new StreetInfo(0, length));
 
             return;
         }
@@ -140,8 +155,32 @@ public class ApplicationInitializer {
 
         //propagation of the operation until a crossroad
         //updating starting vector to the new vector to process
-        startingEdge = this.getForwardEdge(startingNode, arrivalNode);
-        if( startingEdge == null) {
+        //startingEdge = this.getForwardEdge(startingNode, arrivalNode);
+
+
+        /*
+         *
+         * (arrivalNode )------>(A)
+         *       |               |
+         *       |               |
+         *       |               |
+         *       v               v
+         *      (B)--------->(common)
+         *
+         */
+
+        ArrayList<Edge> forwardEdges = this.getForwardEdges(startingEdge, arrivalNode);
+
+
+
+
+
+        /*
+         * axcadca
+         */
+
+
+        /*if( startingEdge == null) {
 
             System.err.println("FINEEE                   fineeeeeeeeeeeee " + key + " " + startingNode.getGraphKey());
 
@@ -149,11 +188,87 @@ public class ApplicationInitializer {
             this.repository.insertStreetSpeed(key.toString(), new StreetInfo(0, length));
 
             return;
+        }*/
+
+        for(Edge edge : forwardEdges){
+            this.streetCalc(edge, key);
         }
 
-        this.streetCalc(startingEdge, arrivalNode, key, ++length);
+        //System.err.println("FINEEE                   nullo " + key + " " + startingNode.getGraphKey());
+
+        //this.repository.updateStreetSpeed(key.toString(), new StreetInfo(0, length));
+
     }
 
+
+    private ArrayList<Edge> getForwardEdges(Edge startingEdge, Node arrivalNode){
+        Collection<Edge> edges = arrivalNode.getEdges().values();
+        Edge nextEdge = null;
+        //edges.sze() non può essere 3 perché altrimenti sarebbe un incrocio ed è stato escluso prima
+        ArrayList<Edge> forwardEdges = new ArrayList<>();
+        if (edges.size() == 2){
+            Edge edges1[] = new Edge[2];
+            edges1[0] = null;
+            edges1[1] = null;
+            int i = 0;
+            //inserisco i due archi uscenti in edges1[]
+            for ( Edge edge : edges) {
+                if ( !edge.getEndingNode().equals(startingEdge.getStartNode())) {
+                    edges1[i] = edge;
+                    i++;
+
+                }
+            }
+
+
+            if (edges1[1] != null) {
+                //posso andare a verificare se ho la situazione buona o meno
+                HashMap<String, Edge> edgeA = this.graph.getNodeByKey(edges1[0].getEndingNode()).getEdges();
+                HashMap<String, Edge> edgeB = this.graph.getNodeByKey(edges1[1].getEndingNode()).getEdges();
+
+                String commonNode = "";
+                for(Edge edge : edgeA.values()) {
+                    commonNode = edge.getEndingNode();
+
+                    for (Edge edge1 : edgeB.values()) {
+                        if (commonNode.equals(edge1.getEndingNode())) {
+                            //situazione bella in cui ho il quadrato
+                            forwardEdges.add(edges1[1]);
+                            forwardEdges.add(edges1[0]);
+
+                            /*if(!this.processed.containsKey(Edge.makeGraphEdgeKey(edges1[1]))) {
+                                this.repository.insertEdge(Edge.makeGraphEdgeKey(edges1[1]), key.toString());
+                                this.processed.putIfAbsent(Edge.makeGraphEdgeKey(edges1[1]), startingEdge);
+                                this.length++;
+                            }
+                            if(!this.processed.containsKey(Edge.makeGraphEdgeKey(edges1[0]))) {
+                                this.repository.insertEdge(Edge.makeGraphEdgeKey(edges1[0]), key.toString());
+                                this.processed.putIfAbsent(Edge.makeGraphEdgeKey(edges1[0]), startingEdge);
+                                this.length++;
+                            }*/
+                            break;
+
+                        }
+                    }
+
+                }
+
+                //return;
+
+            } else {
+                forwardEdges.add(edges1[0]);
+            }
+
+        } else {
+            for ( Edge edge : edges) {
+                if (!edge.getEndingNode().equals(startingEdge.getStartNode())) {
+                    forwardEdges.add(edge);
+                }
+            }
+        }
+
+        return forwardEdges;
+    }
 
 
     public static void main(String args[]){
