@@ -275,6 +275,7 @@ public class ApplicationInitializer {
         ApplicationInitializer app = new ApplicationInitializer();
         app.createGraph();
         app.createStreets();
+        new DocumentsCreator().createIndexes();
         System.err.println("FINE");
     }
 

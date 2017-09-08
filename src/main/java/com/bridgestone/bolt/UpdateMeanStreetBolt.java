@@ -44,7 +44,7 @@ public class UpdateMeanStreetBolt extends BaseRichBolt {
         streetInfo.updateSpeed(tuple.getDouble(1));
         this.repository.updateStreetSpeed(streetKey, streetInfo);
 
-        _collector.emit(new Values(edge, streetInfo.getSpeed()));
+        _collector.emit(new Values(streetKey, streetInfo.getSpeed()));
 
 
         _collector.ack(tuple);
@@ -54,7 +54,7 @@ public class UpdateMeanStreetBolt extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("edge", "speed"));
+        declarer.declare(new Fields("street", "speed"));
     }
 
 }

@@ -204,9 +204,13 @@ public class RedisRepository {
     public Collection<Node> getAll(){
 
         Map<String, Node> map = redissonClient.getMap("graphArea");
-
-
         return map.values();
+    }
+
+    public Map<String, String> getAllEdges(){
+
+        Map<String, String> map = redissonClient.getMap("edges");
+        return map;
     }
 
     public static void main( String[] args){
