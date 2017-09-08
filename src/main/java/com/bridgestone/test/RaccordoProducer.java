@@ -2,6 +2,7 @@ package com.bridgestone.test;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
 import java.util.Properties;
@@ -24,13 +25,13 @@ public class RaccordoProducer {
         Properties props = new Properties();
 
         //Assign localhost id
-        props.put("bootstrap.servers", "localhost:9092");
+        //props.put("bootstrap.servers", "10.200.176.240:9092");
 
         //Set acknowledgements for producer requests.
-        props.put("acks", "all");
+       // props.put("acks", "all");
 
         //If the request fails, the producer can automatically retry,
-        props.put("retries", 0);
+       // props.put("retries", 0);
 
         //Specify buffer size in config
         props.put("batch.size", 16384);
@@ -40,6 +41,10 @@ public class RaccordoProducer {
 
         //The buffer.memory controls the total amount of memory available to the producer for buffering.
         props.put("buffer.memory", 33554432);
+
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.200.176.240:9092");
+        props.put(ProducerConfig.ACKS_CONFIG, "all");
+        props.put(ProducerConfig.RETRIES_CONFIG, 0);
 
         props.put("key.serializer",
                 "org.apache.kafka.common.serialization.StringSerializer");
@@ -88,8 +93,8 @@ public class RaccordoProducer {
             data = data + "," + jsonFormat(0, 2, 0, 3, 0);*/
             //data = data + "," + jsonFormat(0, 3, 0, 4, 0);
 
-/*data = data + "," + jsonFormat(2, 2, 1, 2, 0);
-data = data + "," + jsonFormat(1, 2, 0, 2, 0);*/
+            /*data = data + "," + jsonFormat(2, 2, 1, 2, 0);
+            data = data + "," + jsonFormat(1, 2, 0, 2, 0);*/
 
 
 

@@ -1,9 +1,14 @@
 package com.bridgestone.kafka;
 
 import java.util.Properties;
+
+import kafka.admin.AdminClient;
 import kafka.admin.AdminUtils;
+import kafka.admin.RackAwareMode;
 import kafka.utils.ZKStringSerializer$;
+import kafka.utils.ZkUtils;
 import org.I0Itec.zkclient.ZkClient;
+import org.I0Itec.zkclient.ZkConnection;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -64,14 +69,23 @@ public class StreetProducer {
 
     private void createTopic(String topicName){
 
-
-
         ZkClient zkClient = new ZkClient("localhost:2181", 100000, 100000, ZKStringSerializer$.MODULE$);
+
+        // Security for Kafka was added in Kafka 0.9.0.0
+        boolean isSecureKafkaCluster = false;
+
+        ZkUtils zkUtils = new ZkUtils(zkClient, new ZkConnection("localhost:2181"), isSecureKafkaCluster);
+        AdminUtils.createTopic(zkUtils, topicName, 10, 1, new Properties(), RackAwareMode.Enforced$.MODULE$);
+        zkClient.close();
+
+
+
+        /*ZkClient zkClient = new ZkClient("localhost:2181", 100000, 100000, ZKStringSerializer$.MODULE$);
         if(!AdminUtils.topicExists(zkClient, topicName)) {
             AdminUtils.createTopic(zkClient, topicName, 10, 1, new Properties());
         }
 
-        zkClient.close();
+        zkClient.close();*/
 
         /*ZkClient zkClient = null;
         ZkUtils zkUtils = null;
@@ -102,6 +116,6 @@ public class StreetProducer {
 
     public static void main(String args[]){
         StreetProducer streetProducer = new StreetProducer();
-        streetProducer.createTopic("eunaprova");
+        streetProducer.createTopic("sacddasdasfcsadf");
     }
 }
