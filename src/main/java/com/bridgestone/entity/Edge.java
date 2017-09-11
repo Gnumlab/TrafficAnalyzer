@@ -52,6 +52,6 @@ public class Edge {
     }
 
     public void updateSpeed(double speed) {
-        this.speed = this.speed*0 + speed*10000;
+        this.speed = this.speed*0 + speed*2;
     }
 }

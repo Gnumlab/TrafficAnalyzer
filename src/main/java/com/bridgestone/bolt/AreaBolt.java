@@ -23,9 +23,9 @@ import java.util.UUID;
  * Created by francesco on 26/07/17.
  */
 public class AreaBolt extends BaseRichBolt {
-    OutputCollector _collector;
-    ObjectMapper mapper;
-    TopologyGraphController controller;
+    private OutputCollector _collector;
+    private ObjectMapper mapper;
+    private TopologyGraphController controller;
 
     static double count = 0;
 

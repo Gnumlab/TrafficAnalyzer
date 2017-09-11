@@ -17,8 +17,8 @@ import java.util.Map;
  * Created by balmung on 28/08/17.
  */
 public class UpdateMeanStreetBolt extends BaseRichBolt {
-    OutputCollector _collector;
-    ObjectMapper mapper;
+    private OutputCollector _collector;
+    private ObjectMapper mapper;
 
     private RedisRepository repository;
 
@@ -32,9 +32,6 @@ public class UpdateMeanStreetBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple tuple) {
-        /*System.err.println("received" + tuple.getString(0) + "!!!" + "\n\n\n\n\n\n\n\n\n\n");
-        _collector.emit(tuple, new Values(tuple.getString(0) + "!!!"));
-        _collector.ack(tuple);*/
         System.err.println("Update STreet BOLT" + tuple.getString(0) + "!!!" + "\n\n\n\n\n\n\n\n\n\n");
 
         String edge = tuple.getString(0);

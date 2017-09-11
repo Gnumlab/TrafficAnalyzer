@@ -44,13 +44,10 @@ public class StormMain {
 
 
         builder.setSpout("StreetInfo", new KafkaSpout(kafkaSpoutConfig),2);
-        //parallelism hint: number of thread for node
-        //builder.setBolt("exclaim1", new ExclamationBolt(), 3).shuffleGrouping("StreetInfo");
-        //builder.setBolt("exclaim2", new ExclamationBolt(), 2).shuffleGrouping("exclaim1");
         builder.setBolt("consumer", new SplitterBolt(),3).shuffleGrouping("StreetInfo");
         builder.setBolt("mean", new MeanCalculatorBolt(),3).shuffleGrouping("consumer");
         builder.setBolt("street", new UpdateMeanStreetBolt(),3).fieldsGrouping("mean", new Fields("edge"));
-        builder.setBolt("producer", new ProducerBolt(),3).fieldsGrouping("street", new Fields("edge"));
+        builder.setBolt("producer", new ProducerBolt(),3).fieldsGrouping("street", new Fields("street"));
 
 
 

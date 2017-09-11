@@ -29,15 +29,17 @@ public class DocumentsCreator {
         Map<String, String> edges = repository.getAllEdges();
         //creates the list of edges that compose a street in a Json format: NB: it is yet needed the closure ]
         Map<String, String> streets = new HashMap<>();
-        for(String streetKey : edges.keySet()){
+        for(String edgeKey : edges.keySet()){
+            String streetKey = edges.get(edgeKey);
             if (streets.containsKey(streetKey)){
                 //update the street with another edge
                 String transientStreet = streets.get(streetKey);
-                transientStreet = transientStreet + ",{" + edges.get(streetKey) + "}";
+                transientStreet = transientStreet + ",{" + edgeKey + "}";
                 streets.put(streetKey, transientStreet);
+                System.err.println("ID " + streetKey + " VALORE: " + transientStreet);
             } else {
                 //create the first element of the array and the array itself
-                String initialStreet = "edges: [{" + edges.get(streetKey) + "}";
+                String initialStreet = "[{" + edgeKey + "}";
                 streets.put(streetKey, initialStreet);
             }
         }
@@ -49,25 +51,26 @@ public class DocumentsCreator {
     }
 
     private static void writeIndexes(Map<String, String> streets){
+        RedisRepository repository = RedisRepository.getInstance();
         System.setProperty("es.set.netty.runtime.available.processors", "false");   //only God knows!!!
         try{
             TransportClient client = new PreBuiltTransportClient(Settings.EMPTY)
             .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("127.0.0.1"), 9300));
             for(String streetKey : streets.keySet()){
 
-                IndexResponse response = client.prepareIndex("streets", "street", streetKey)
+                IndexResponse response = client.prepareIndex("streetindex", "streetinfo", streetKey)
                         .setSource(jsonBuilder()
                                 .startObject()
-                                .field("edges", streets.get(streetKey) + "]")
+                                .field("edges", streets.get(streetKey)+ "]")
                                 .field("section", ConfigurationProperties.TOPIC)
                                 .field("speed", "50")
                                 .field("keyStreet", streetKey)
                                 .endObject()
                         )
                         .get();
-                System.err.println("                                            _id = " + response.getId());
-
+                System.err.println("                                            _id = " + response.getResult() + response.getIndex() + response.getType() + response.getId());
             }
+            client.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

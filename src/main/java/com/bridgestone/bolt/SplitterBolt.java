@@ -22,8 +22,8 @@ import java.util.Map;
  * Created by balmung on 29/08/17.
  */
 public class SplitterBolt extends BaseRichBolt {
-    OutputCollector _collector;
-    ObjectMapper mapper;
+    private OutputCollector _collector;
+    private ObjectMapper mapper;
 
 
     @Override

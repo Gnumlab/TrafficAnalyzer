@@ -55,22 +55,22 @@ public class RaccordoProducer {
         Producer<String, String> producer = new KafkaProducer<String, String>(props);
 
 
-        for(int j = 0; j < 1; j++) {
+        for(int j = 0; j < 10; j++) {
             String data = "[";
 
             data = data + jsonFormat(0, 51, 52.12 + 50 + 1, 41.34 + 50 + 1, 0);
-            data = data + "," + jsonFormat(0, 51, 132.12 + 50 + 1, 43.34 + 50 + 1, 0);
-            data = data + "," + jsonFormat(0, 51, 0, 1, 0);
-            data = data + "," + jsonFormat(0, 1, 1, 1, 0);
-            data = data + "," + jsonFormat(0, 1, 0, 2, 0);
-            data = data + "," + jsonFormat(1, 1, 1, 2, 0);
-            data = data + "," + jsonFormat(0, 2, 1, 2, 0);
-            data = data + "," + jsonFormat(1, 2, 2, 2, 0);
-            data = data + "," + jsonFormat(2, 2, 2, 3, 0);
-            data = data + "," + jsonFormat(1, 2, 1, 3, 0);
-            data = data + "," + jsonFormat(1, 3, 2, 3, 0);
-            data = data + "," + jsonFormat(1, 3, 1, 2, 0);
-            data = data + "," + jsonFormat(0, 3, 1, 3, 0);
+            data = data + "," + jsonFormat(0, 51, 132.12 + 50 + 1, 43.34 + 50 + 1, 10);
+            data = data + "," + jsonFormat(0, 51, 0, 1, 1);
+            data = data + "," + jsonFormat(0, 1, 1, 1, 2);
+            data = data + "," + jsonFormat(0, 1, 0, 2, 3);
+            data = data + "," + jsonFormat(1, 1, 1, 2, 4);
+            data = data + "," + jsonFormat(0, 2, 1, 2, 5);
+            data = data + "," + jsonFormat(1, 2, 2, 2, 6);
+            data = data + "," + jsonFormat(2, 2, 2, 3, 7);
+            data = data + "," + jsonFormat(1, 2, 1, 3, 8);
+            data = data + "," + jsonFormat(1, 3, 2, 3, 9);
+            data = data + "," + jsonFormat(1, 3, 1, 2, 20);
+            data = data + "," + jsonFormat(0, 3, 1, 3, 31);
 
 
 

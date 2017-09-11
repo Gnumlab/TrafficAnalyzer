@@ -23,8 +23,8 @@ import java.util.Map;
  * Created by francesco on 24/07/17.
  */
 public class MeanCalculatorBolt extends BaseRichBolt {
-    OutputCollector _collector;
-    ObjectMapper mapper;
+    private OutputCollector _collector;
+    private ObjectMapper mapper;
 
     private RedisRepository repository;
 
