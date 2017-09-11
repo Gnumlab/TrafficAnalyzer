@@ -4,6 +4,7 @@ import com.bridgestone.entity.Edge;
 import com.bridgestone.entity.GraphArea;
 import com.bridgestone.entity.Node;
 import com.bridgestone.redis.RedisRepository;
+import com.bridgestone.utils.DocumentsCreator;
 import com.bridgestone.utils.StreetInfo;
 
 import java.util.*;
@@ -270,12 +271,16 @@ public class ApplicationInitializer {
         return forwardEdges;
     }
 
+    public void createIndexes(){
+        DocumentsCreator.createIndexes();
+    }
+
 
     public static void main(String args[]){
         ApplicationInitializer app = new ApplicationInitializer();
         app.createGraph();
         app.createStreets();
-        new DocumentsCreator().createIndexes();
+        app.createIndexes();
         System.err.println("FINE");
     }
 

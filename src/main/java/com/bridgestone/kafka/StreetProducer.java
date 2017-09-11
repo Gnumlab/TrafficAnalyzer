@@ -74,9 +74,9 @@ public class StreetProducer {
         // Security for Kafka was added in Kafka 0.9.0.0
         boolean isSecureKafkaCluster = false;
 
-        ZkUtils zkUtils = new ZkUtils(zkClient, new ZkConnection("localhost:2181"), isSecureKafkaCluster);
+        /*ZkUtils zkUtils = new ZkUtils(zkClient, new ZkConnection("localhost:2181"), isSecureKafkaCluster);
         AdminUtils.createTopic(zkUtils, topicName, 10, 1, new Properties(), RackAwareMode.Enforced$.MODULE$);
-        zkClient.close();
+        zkClient.close();*/
 
 
 

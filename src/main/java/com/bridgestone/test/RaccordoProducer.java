@@ -44,7 +44,7 @@ public class RaccordoProducer {
 
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.200.176.240:9092");
         props.put(ProducerConfig.ACKS_CONFIG, "all");
-        props.put(ProducerConfig.RETRIES_CONFIG, 0);
+        props.put(ProducerConfig.RETRIES_CONFIG, 1);
 
         props.put("key.serializer",
                 "org.apache.kafka.common.serialization.StringSerializer");

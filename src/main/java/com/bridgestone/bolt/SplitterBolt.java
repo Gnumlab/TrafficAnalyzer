@@ -16,9 +16,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import javax.json.*;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.Map;
 
 /**

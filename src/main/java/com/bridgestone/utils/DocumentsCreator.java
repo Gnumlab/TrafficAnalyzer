@@ -1,4 +1,4 @@
-package com.bridgestone.controller;
+package com.bridgestone.utils;
 
 import com.bridgestone.redis.RedisRepository;
 import com.bridgestone.utils.ConfigurationProperties;
@@ -22,7 +22,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
  */
 public class DocumentsCreator {
 
-    public void createIndexes(){
+    public static void createIndexes(){
 
         RedisRepository repository = RedisRepository.getInstance();
         repository.connectDB();
@@ -42,13 +42,13 @@ public class DocumentsCreator {
             }
         }
 
-        this.writeIndexes(streets);
+        writeIndexes(streets);
 
         repository.disconnectFromDB();
 
     }
 
-    private void writeIndexes(Map<String, String> streets){
+    private static void writeIndexes(Map<String, String> streets){
         System.setProperty("es.set.netty.runtime.available.processors", "false");   //only God knows!!!
         try{
             TransportClient client = new PreBuiltTransportClient(Settings.EMPTY)

@@ -28,6 +28,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
  * Created by balmung on 30/08/17.
  */
 public class ProducerBolt extends BaseRichBolt{
+    /** the class ProducerBolt is responsible for the updating of the data indexed in Elasticsearch*/
     OutputCollector _collector;
     ObjectMapper mapper;
 
