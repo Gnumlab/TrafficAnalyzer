@@ -1,5 +1,7 @@
 package com.bridgestone.bolt;
 
+import com.bridgestone.ElasticSearch.LocalClient;
+import com.bridgestone.utils.ElasticClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
@@ -53,28 +55,14 @@ public class ProducerBolt extends BaseRichBolt{
 
             releasableLock.acquire();
 
-            TransportClient client = new PreBuiltTransportClient(Settings.EMPTY)
-                    .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("127.0.0.1"), 9300));
-            UpdateRequest updateRequest = new UpdateRequest();
-            updateRequest.index("streetindex");
-            updateRequest.type("streetinfo");
-            updateRequest.id(streetKey);
-            updateRequest.doc(jsonBuilder()
-                    .startObject()
-                    .field("speed", speed.toString())
-                    .endObject());
-            UpdateResponse updateResponse = client.update(updateRequest).get();
-
-
-
-
-
+            ElasticClient client = new LocalClient();
+            client.updateSpeedStreet("localhost", 9300, "streetindex", "streetinfo",
+                    streetKey, speed);
            /* UpdateResponse updateResponse = client.prepareUpdate("streetindex", "streetinfo", streetKey)
                     .setScript(new Script("ctx._source.speed=\"" + speed + "\""))
                     .execute()
                     .actionGet();*/
             //System.err.println("hhhhhhhhhhhhhhgghghghghhhhhhhhh            " + updateResponse.getGetResult().field("speed").getValue()+ "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-            client.close();
             releasableLock.close();
 
         } catch (IOException e) {

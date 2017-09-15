@@ -1,5 +1,6 @@
 package com.bridgestone.utils;
 
+import com.bridgestone.ElasticSearch.LocalClient;
 import com.bridgestone.redis.RedisRepository;
 import com.bridgestone.utils.ConfigurationProperties;
 import org.elasticsearch.action.index.IndexResponse;
@@ -54,11 +55,12 @@ public class DocumentsCreator {
         RedisRepository repository = RedisRepository.getInstance();
         System.setProperty("es.set.netty.runtime.available.processors", "false");   //only God knows!!!
         try{
-            TransportClient client = new PreBuiltTransportClient(Settings.EMPTY)
-            .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("127.0.0.1"), 9300));
+            //TransportClient client = new PreBuiltTransportClient(Settings.EMPTY)
+            //.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("127.0.0.1"), 9300));
+            ElasticClient client = new LocalClient();
             for(String streetKey : streets.keySet()){
 
-                IndexResponse response = client.prepareIndex("streetindex", "streetinfo", streetKey)
+                /*IndexResponse response = client.prepareIndex("streetindex", "streetinfo", streetKey)
                         .setSource(jsonBuilder()
                                 .startObject()
                                 .field("edges", streets.get(streetKey)+ "]")
@@ -67,11 +69,17 @@ public class DocumentsCreator {
                                 .field("keyStreet", streetKey)
                                 .endObject()
                         )
-                        .get();
+                        .get();*/
+                IndexResponse response = client.createIndexes("127.0.0.1", 9300, "streetindex", "streetinfo",
+                         streets.get(streetKey), streetKey);
                 System.err.println("                                            _id = " + response.getResult() + response.getIndex() + response.getType() + response.getId());
             }
-            client.close();
+            //client.close();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
             e.printStackTrace();
         }
     }
