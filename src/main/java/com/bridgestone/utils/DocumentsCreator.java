@@ -1,17 +1,11 @@
 package com.bridgestone.utils;
 
-import com.bridgestone.ElasticSearch.LocalClient;
+import com.bridgestone.elasticsearch.CloudClient;
+import com.bridgestone.elasticsearch.LocalClient;
 import com.bridgestone.redis.RedisRepository;
-import com.bridgestone.utils.ConfigurationProperties;
 import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -23,6 +17,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
  */
 public class DocumentsCreator {
 
+    //search-traffic-analyzer-indexes-faaztbzp3bx3q7hitgjkb44wwi.eu-central-1.es.amazonaws.com
     public static void createIndexes(){
 
         RedisRepository repository = RedisRepository.getInstance();
@@ -57,7 +52,9 @@ public class DocumentsCreator {
         try{
             //TransportClient client = new PreBuiltTransportClient(Settings.EMPTY)
             //.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("127.0.0.1"), 9300));
-            ElasticClient client = new LocalClient();
+            //ElasticClient client = new LocalClient();
+            ElasticClient client = new CloudClient();
+
             for(String streetKey : streets.keySet()){
 
                 /*IndexResponse response = client.prepareIndex("streetindex", "streetinfo", streetKey)
@@ -70,8 +67,9 @@ public class DocumentsCreator {
                                 .endObject()
                         )
                         .get();*/
-                IndexResponse response = client.createIndexes("127.0.0.1", 9300, "streetindex", "streetinfo",
-                         streets.get(streetKey), streetKey);
+                //IndexResponse response = client.createIndexes("127.0.0.1", 9300, "streetindex", "streetinfo",streets.get(streetKey), streetKey);
+                IndexResponse response = client.createIndexes("search-traffic-analyzer-indexes-faaztbzp3bx3q7hitgjkb44wwi.eu-central-1.es.amazonaws.com", 9300, "streetindex", "streetinfo",
+                        streets.get(streetKey), streetKey);
                 System.err.println("                                            _id = " + response.getResult() + response.getIndex() + response.getType() + response.getId());
             }
             //client.close();

@@ -1,6 +1,7 @@
 package com.bridgestone.bolt;
 
-import com.bridgestone.ElasticSearch.LocalClient;
+import com.bridgestone.elasticsearch.CloudClient;
+import com.bridgestone.elasticsearch.LocalClient;
 import com.bridgestone.utils.ElasticClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.storm.task.OutputCollector;
@@ -8,19 +9,9 @@ import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Tuple;
-import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.action.update.UpdateResponse;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.util.concurrent.ReleasableLock;
-import org.elasticsearch.index.reindex.UpdateByQueryAction;
-import org.elasticsearch.index.reindex.UpdateByQueryRequestBuilder;
-import org.elasticsearch.script.Script;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -55,8 +46,9 @@ public class ProducerBolt extends BaseRichBolt{
 
             releasableLock.acquire();
 
-            ElasticClient client = new LocalClient();
-            client.updateSpeedStreet("localhost", 9300, "streetindex", "streetinfo",
+            //ElasticClient client = new LocalClient();
+            ElasticClient client = new CloudClient();
+            client.updateSpeedStreet("traffic-analyzer-indexes.eu-central-1.es.amazonaws.com", 9300, "streetindex", "streetinfo",
                     streetKey, speed);
            /* UpdateResponse updateResponse = client.prepareUpdate("streetindex", "streetinfo", streetKey)
                     .setScript(new Script("ctx._source.speed=\"" + speed + "\""))

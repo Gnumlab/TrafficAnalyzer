@@ -18,6 +18,7 @@ import org.elasticsearch.node.Node;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.springframework.expression.spel.ast.Indexer;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -30,14 +31,14 @@ import static org.elasticsearch.threadpool.ThreadPool.Names.INDEX;
 public class TestElasticsearch {
 
     public static void main(String args[]) {
+        CloudClient cloudClient = new CloudClient();
         try {
-            TransportClient client = new PreBuiltTransportClient(Settings.EMPTY)
-                    .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("127.0.0.1"), 9300));
-            GetResponse response = client.prepareGet("streetindex", "streetinfo", "2").execute().actionGet();
-            System.err.println(response.getSource().get("speed") + " " + response.getSource().get("edges"));
-            client.close();
-        } catch (UnknownHostException e) {
+            GetResponse response = cloudClient.get("search-traffic-analyzer-indexes-faaztbzp3bx3q7hitgjkb44wwi.eu-central-1.es.amazonaws.com", 9300,
+            "streetindex", "streetinfo", "2");
+            System.err.println(response.getSource());
+        } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 }
