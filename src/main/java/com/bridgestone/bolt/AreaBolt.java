@@ -68,7 +68,7 @@ public class AreaBolt extends BaseRichBolt {
     public static void main(String[] args) throws Exception {
 
         TopologyBuilder builder = new TopologyBuilder();
-        String zkConnString = "10.200.176.240:2181";
+        String zkConnString = "54.93.96.33:2181";
         double x, y;
         x = 52.12;
         y = 41.34;
@@ -83,8 +83,6 @@ public class AreaBolt extends BaseRichBolt {
         kafkaSpoutConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
 
 
-
-
         builder.setSpout("StreetInfo", new KafkaSpout(kafkaSpoutConfig),10);
         //parallelism hint: number of thread for node
         //builder.setBolt("exclaim1", new ExclamationBolt(), 3).shuffleGrouping("StreetInfo");
@@ -95,6 +93,7 @@ public class AreaBolt extends BaseRichBolt {
 
         Config conf = new Config();
         conf.setDebug(false);
+
 
 
 

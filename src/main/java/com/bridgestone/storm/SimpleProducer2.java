@@ -1,5 +1,6 @@
 package com.bridgestone.storm;
 
+import com.bridgestone.kafka.KafkaTopicCreator;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -25,13 +26,13 @@ public class SimpleProducer2 {
         Properties props = new Properties();
 
         //Assign localhost id
-        props.put("bootstrap.servers", "localhost:9092");
+        props.put("bootstrap.servers", "54.93.96.33:9092");
 
         //Set acknowledgements for producer requests.
         props.put("acks", "all");
 
         //If the request fails, the producer can automatically retry,
-        props.put("retries", 0);
+        props.put("retries", 6);
 
         //Specify buffer size in config
         props.put("batch.size", 16384);
@@ -67,6 +68,8 @@ public class SimpleProducer2 {
 
             data = data + "]";
             System.err.println(data);
+            String zookeeperHost = "54.93.96.33";
+            KafkaTopicCreator.createTopic(zookeeperHost, topicName);
             producer.send(new ProducerRecord<String, String>(topicName, data));
         }
 

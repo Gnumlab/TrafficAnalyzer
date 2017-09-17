@@ -4,6 +4,7 @@ import com.bridgestone.entity.Node;
 import com.bridgestone.utils.StreetInfo;
 import org.redisson.Redisson;
 import org.redisson.api.*;
+import org.redisson.config.Config;
 
 import java.util.*;
 
@@ -25,11 +26,11 @@ public class RedisRepository {
     }
 
     public void connectDB() {
-        /*Config config = new Config();
+        Config config = new Config();
         config.useSingleServer()
-                .setAddress("redis://127.0.0.1:6379");*/
+                .setAddress("redis://54.93.249.129:6379");
 
-        redissonClient = Redisson.create();
+        redissonClient = Redisson.create(config);
     }
 
 
@@ -207,16 +208,43 @@ public class RedisRepository {
         return map.values();
     }
 
+    public Map<String, Node> getAllNodes(){
+
+        Map<String, Node> map = redissonClient.getMap("graphArea");
+        return map;
+    }
+
     public Map<String, String> getAllEdges(){
 
         Map<String, String> map = redissonClient.getMap("edges");
         return map;
     }
 
+    public void printEdges(){
+        RedisRepository redisRepository = RedisRepository.getInstance();
+        Map<String, String> edges = redisRepository.getAllEdges();
+        for (String key: edges.keySet()) {
+            System.err.println(key);
+        }
+    }
+
+    public void printNodes(){
+        RedisRepository redisRepository = RedisRepository.getInstance();
+        Map<String, Node> nodes = (Map<String, Node>)redisRepository.getAllNodes();
+        for (String key: nodes.keySet()) {
+            System.err.println(key);
+        }
+    }
+
     public static void main( String[] args){
         //Redisson.create();
         RedisRepository redisRepository = RedisRepository.getInstance();
-        //redisRepository.insertNode(new Node(34.3, 56.8));
+        Node node = new Node(34.3, 56.8);
+        redisRepository.insertNode(node);
+        System.err.println(redisRepository.getNode(node.getGraphKey()).getGraphKey());
+        //redisRepository.printEdges();
+        redisRepository.printNodes();
+        redisRepository.disconnectFromDB();
     }
 
     public double getMean(String startKey, String arrivalKey) {
