@@ -27,8 +27,11 @@ public class RedisRepository {
 
     public void connectDB() {
         Config config = new Config();
-        config.useSingleServer()
-                .setAddress("redis://54.93.249.129:6379");
+        /*config.useSingleServer()
+                .setAddress("redis://54.93.249.129:6379");*/
+        config.useClusterServers().setScanInterval(2000).addNodeAddress("redis://54.93.249.129:7000")
+                .addNodeAddress("redis://54.93.249.129:7001")
+                .addNodeAddress("redis://54.93.249.129:7002");
 
         redissonClient = Redisson.create(config);
     }
