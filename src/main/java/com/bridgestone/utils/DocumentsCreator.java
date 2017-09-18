@@ -1,7 +1,6 @@
 package com.bridgestone.utils;
 
 import com.bridgestone.elasticsearch.CloudClient;
-import com.bridgestone.elasticsearch.LocalClient;
 import com.bridgestone.redis.RedisRepository;
 import org.elasticsearch.action.index.IndexResponse;
 
@@ -9,8 +8,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 /**
  * Created by balmung on 08/09/17.
@@ -68,7 +65,7 @@ public class DocumentsCreator {
                         )
                         .get();*/
                 //IndexResponse response = client.createIndexes("127.0.0.1", 9300, "streetindex", "streetinfo",streets.get(streetKey), streetKey);
-                IndexResponse response = client.createIndexes("search-traffic-analyzer-indexes-faaztbzp3bx3q7hitgjkb44wwi.eu-central-1.es.amazonaws.com", 9300, "streetindex", "streetinfo",
+                IndexResponse response = client.createIndexes("localhost", 9300, "streetindex", "streetinfo",
                         streets.get(streetKey), streetKey);
                 System.err.println("                                            _id = " + response.getResult() + response.getIndex() + response.getType() + response.getId());
             }

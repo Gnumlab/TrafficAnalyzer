@@ -47,8 +47,8 @@ public class ProducerBolt extends BaseRichBolt{
             releasableLock.acquire();
 
             //ElasticClient client = new LocalClient();
-            ElasticClient client = new CloudClient();
-            client.updateSpeedStreet("traffic-analyzer-indexes.eu-central-1.es.amazonaws.com", 9300, "streetindex", "streetinfo",
+            ElasticClient client = new LocalClient();
+            client.updateSpeedStreet("localhost", 9300, "streetindex", "streetinfo",
                     streetKey, speed);
            /* UpdateResponse updateResponse = client.prepareUpdate("streetindex", "streetinfo", streetKey)
                     .setScript(new Script("ctx._source.speed=\"" + speed + "\""))

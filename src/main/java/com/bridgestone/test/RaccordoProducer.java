@@ -42,7 +42,7 @@ public class RaccordoProducer {
         //The buffer.memory controls the total amount of memory available to the producer for buffering.
         props.put("buffer.memory", 33554432);
 
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.200.176.240:9092");
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "54.93.96.33:9092");
         props.put(ProducerConfig.ACKS_CONFIG, "all");
         props.put(ProducerConfig.RETRIES_CONFIG, 1);
 
