@@ -58,7 +58,7 @@ public class RaccordoProducer {
         for(int j = 0; j < 10; j++) {
             String data = "[";
 
-            data = data + jsonFormat(0, 51, 52.12 + 50 + 1, 41.34 + 50 + 1, 0);
+            data = data + jsonFormat(1000000, 51, 52.12 + 50 + 1, 41.34 + 50 + 1, 0);
             data = data + "," + jsonFormat(0, 51, 132.12 + 50 + 1, 43.34 + 50 + 1, 10);
             data = data + "," + jsonFormat(0, 51, 0, 1, 1);
             data = data + "," + jsonFormat(0, 1, 1, 1, 2);

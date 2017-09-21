@@ -16,7 +16,6 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
-import org.springframework.expression.spel.ast.Indexer;
 
 import java.io.IOException;
 import java.net.InetAddress;
