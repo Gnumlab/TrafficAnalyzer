@@ -44,14 +44,14 @@ public class LocalClient implements ElasticClient{
         return updateResponse;
     }
 
-    public IndexResponse createIndexes(String address, int port, String index, String type, String edges, String streetKey) throws IOException, ExecutionException, InterruptedException {
+    public IndexResponse createIndexes(String address, int port, String index, String type, String edges, String topic, String streetKey) throws IOException, ExecutionException, InterruptedException {
         TransportClient client = new PreBuiltTransportClient(Settings.EMPTY)
                 .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("127.0.0.1"),
                         9300));
                         IndexRequest indexRequest = new IndexRequest("posts", "doc", "1")
                 .source(jsonBuilder().startObject()
                         .field("edges", streetKey + "]")
-                        .field("section", ConfigurationProperties.TOPIC)
+                        .field("section", topic)
                         .field("speed", "50")
                         .field("keyStreet", streetKey)
                         .endObject());

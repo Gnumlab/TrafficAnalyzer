@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
+
 /**
  * Created by balmung on 08/09/17.
  */
@@ -21,18 +23,19 @@ public class DocumentsCreator {
         repository.connectDB();
         Map<String, String> edges = repository.getAllEdges();
         //creates the list of edges that compose a street in a Json format: NB: it is yet needed the closure ]
-        Map<String, String> streets = new HashMap<>();
+        Map<String, StreetIndexUtil> streets = new HashMap<>();
         for(String edgeKey : edges.keySet()){
             String streetKey = edges.get(edgeKey);
             if (streets.containsKey(streetKey)){
                 //update the street with another edge
-                String transientStreet = streets.get(streetKey);
-                transientStreet = transientStreet + ",{" + edgeKey + "}";
+                StreetIndexUtil transientStreet = streets.get(streetKey);
+                transientStreet.updateEdges(",{" + edgeKey + "}");
                 streets.put(streetKey, transientStreet);
                 System.err.println("ID " + streetKey + " VALORE: " + transientStreet);
             } else {
                 //create the first element of the array and the array itself
-                String initialStreet = "[{" + edgeKey + "}";
+                StreetIndexUtil initialStreet = new StreetIndexUtil("[{" + edgeKey + "}",
+                        getTopicFromEdge(edgeKey));
                 streets.put(streetKey, initialStreet);
             }
         }
@@ -43,7 +46,7 @@ public class DocumentsCreator {
 
     }
 
-    private static void writeIndexes(Map<String, String> streets){
+    private static void writeIndexes(Map<String, StreetIndexUtil> streets){
         RedisRepository repository = RedisRepository.getInstance();
         System.setProperty("es.set.netty.runtime.available.processors", "false");   //only God knows!!!
         try{
@@ -51,14 +54,13 @@ public class DocumentsCreator {
             //.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("127.0.0.1"), 9300));
             //ElasticClient client = new LocalClient();
             ElasticClient client = new CloudClient();
-
+            String address = "address";
             for(String streetKey : streets.keySet()){
-
-                /*IndexResponse response = client.prepareIndex("streetindex", "streetinfo", streetKey)
+                /*IndexResponse response = client.createIndexes(address, 9300,"streetindex", "streetinfo", streetKey)
                         .setSource(jsonBuilder()
                                 .startObject()
                                 .field("edges", streets.get(streetKey)+ "]")
-                                .field("section", ConfigurationProperties.TOPIC)
+                                .field("section", streets.get(streetKey)
                                 .field("speed", "50")
                                 .field("keyStreet", streetKey)
                                 .endObject()
@@ -66,7 +68,7 @@ public class DocumentsCreator {
                         .get();*/
                 //IndexResponse response = client.createIndexes("127.0.0.1", 9300, "streetindex", "streetinfo",streets.get(streetKey), streetKey);
                 IndexResponse response = client.createIndexes("localhost", 9300, "streetindex", "streetinfo",
-                        streets.get(streetKey), streetKey);
+                        streets.get(streetKey).getEdges(), streets.get(streetKey).getTopic(), streetKey);
                 System.err.println("                                            _id = " + response.getResult() + response.getIndex() + response.getType() + response.getId());
             }
             //client.close();
@@ -77,6 +79,17 @@ public class DocumentsCreator {
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
+    }
+
+    private static String getTopicFromEdge(String edgeKey){
+        String[] nodes = edgeKey.split("-");
+        String firstNode = nodes[0];
+        String[] values = firstNode.split(".");
+        String floatingPart1 = values[1];
+        floatingPart1 = floatingPart1.substring(0,1);
+        String floatingPart2 = values[3];
+        floatingPart2 = floatingPart2.substring(0,1);
+        return values[0] + "." + floatingPart1 + values[2] + "." + floatingPart2;
     }
 
 

@@ -15,5 +15,5 @@ public interface ElasticClient {
                                             String type, String streetKey, Double speed) throws
             IOException, ExecutionException, InterruptedException;
 
-    public IndexResponse createIndexes(String address, int port, String index, String type, String edges, String streetKey) throws IOException, ExecutionException, InterruptedException ;
+    public IndexResponse createIndexes(String address, int port, String index, String type, String edges, String topic, String streetKey) throws IOException, ExecutionException, InterruptedException ;
 }

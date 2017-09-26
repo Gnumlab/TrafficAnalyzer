@@ -35,13 +35,13 @@ public class CloudClient implements ElasticClient {
         return response;
     }
 
-    public IndexResponse createIndexes(String address, int port, String index, String type,String edges, String streetKey) throws IOException {
+    public IndexResponse createIndexes(String address, int port, String index, String type,String edges, String topic, String streetKey) throws IOException {
         RestClient lowClient = RestClient.builder(new HttpHost(address, 443, "https")).build();
         RestHighLevelClient client = new RestHighLevelClient(lowClient);
         IndexRequest indexRequest = new IndexRequest(index, type, streetKey)
                 .source(jsonBuilder().startObject()
                 .field("edges", streetKey + "]")
-                .field("section", ConfigurationProperties.TOPIC)
+                .field("section", topic)
                 .field("speed", "50")
                 .field("keyStreet", streetKey)
                 .endObject());

@@ -4,6 +4,7 @@ import com.bridgestone.bolt.MeanCalculatorBolt;
 import com.bridgestone.bolt.ProducerBolt;
 import com.bridgestone.bolt.SplitterBolt;
 import com.bridgestone.bolt.UpdateMeanStreetBolt;
+import com.bridgestone.kafka.KafkaTopicCreator;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.StormSubmitter;
@@ -24,13 +25,33 @@ public class StormMain {
 
 
 
-
         TopologyBuilder builder = new TopologyBuilder();
-        String zkConnString = "localhost:2181";
-        double x, y;
+        String zkConnString = "localhost";
+        /*double x, y;
         x = 52.12;
-        y = 41.34;
-        String topic = Double.toString(x) + Double.toString(y);
+        y = 41.34;*/
+        double endingX = 12.7;
+        double endingY = 42.0;
+        for(double x = 12.3; x <= endingX; x = x + 0.1){
+            for( double y = 41.75; y<= endingY; y = y + 0.1){
+                String topic = Double.toString(x) + Double.toString(y);
+                KafkaTopicCreator.createTopic(zkConnString, topic);
+                BrokerHosts hosts = new ZkHosts(zkConnString.concat(":2181"));
+
+                SpoutConfig kafkaSpoutConfig = new SpoutConfig (hosts, topic, "/" + topic,
+                        UUID.randomUUID().toString());
+                kafkaSpoutConfig.bufferSizeBytes = 1024 * 1024 * 4;
+                kafkaSpoutConfig.fetchSizeBytes = 1024 * 1024 * 4;
+                kafkaSpoutConfig.startOffsetTime = kafka.api.OffsetRequest.LatestTime();
+                kafkaSpoutConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
+                builder.setSpout("StreetInfo".concat(topic), new KafkaSpout(kafkaSpoutConfig),2);
+                builder.setBolt("consumer".concat(topic), new SplitterBolt(),3).shuffleGrouping("StreetInfo".concat(topic));
+                builder.setBolt("mean".concat(topic), new MeanCalculatorBolt(),3).shuffleGrouping("consumer".concat(topic));
+                builder.setBolt("street".concat(topic), new UpdateMeanStreetBolt(),3).fieldsGrouping("mean".concat(topic), new Fields("edge"));
+                builder.setBolt("producer".concat(topic), new ProducerBolt(),3).fieldsGrouping("street".concat(topic), new Fields("street"));
+            }
+        }
+        /*String topic = Double.toString(x) + Double.toString(y);
         BrokerHosts hosts = new ZkHosts(zkConnString);
 
         SpoutConfig kafkaSpoutConfig = new SpoutConfig (hosts, topic, "/" + topic,
@@ -49,7 +70,7 @@ public class StormMain {
         builder.setBolt("street", new UpdateMeanStreetBolt(),3).fieldsGrouping("mean", new Fields("edge"));
         builder.setBolt("producer", new ProducerBolt(),3).fieldsGrouping("street", new Fields("street"));
 
-
+*/
 
         Config conf = new Config();
         conf.setDebug(false);

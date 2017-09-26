@@ -69,7 +69,7 @@ public class AreaBolt extends BaseRichBolt {
     public static void main(String[] args) throws Exception {
 
         TopologyBuilder builder = new TopologyBuilder();
-        String zkConnString = "54.93.96.33:2181";
+        String zkConnString = "54.93.238.46:2181";
         double x, y;
         x = 52.12;
         y = 41.34;
@@ -91,7 +91,6 @@ public class AreaBolt extends BaseRichBolt {
         builder.setBolt("split", new SplitterBolt(),10).shuffleGrouping("StreetInfo");
         builder.setBolt("mean", new AreaBolt(),10).shuffleGrouping("split");
 
-
         Config conf = new Config();
         conf.setDebug(false);
 
@@ -100,7 +99,7 @@ public class AreaBolt extends BaseRichBolt {
 
         LocalCluster cluster = new LocalCluster();
         cluster.submitTopology("test", conf, builder.createTopology());
-        System.err.print("Submitted topology " + topic + "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+        System.err.print("Submitted topology " + topic + "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         Utils.sleep(1000000);
         cluster.killTopology("test");
         cluster.shutdown();

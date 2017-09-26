@@ -97,4 +97,7 @@ public class Consumer {
         }
 
     }*/
+    public static void main(String[] args){
+        System.out.println(new Double(10.2000));
+    }
 }

@@ -27,8 +27,8 @@ public class StreetInfo {
     public void updateSpeed(double newSpeed){
         System.err.println("                        LUNGHEZZAAAAAAA" + length);
 
-        //this.speed = newSpeed * 1/this.length + this.speed * ((length-1)/length);
-        this.speed = newSpeed;
+        this.speed = newSpeed * 1/this.length + this.speed * ((length-1)/length);
+        //this.speed = newSpeed;
     }
 
     public int getLength() {

@@ -7,6 +7,8 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 
 import java.util.Properties;
 
+import static jodd.util.ThreadUtil.sleep;
+
 /**
  * Created by balmung on 01/09/17.
  */
@@ -42,7 +44,7 @@ public class RaccordoProducer {
         //The buffer.memory controls the total amount of memory available to the producer for buffering.
         props.put("buffer.memory", 33554432);
 
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "54.93.96.33:9092");
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "54.93.238.46:9092");
         props.put(ProducerConfig.ACKS_CONFIG, "all");
         props.put(ProducerConfig.RETRIES_CONFIG, 1);
 
@@ -55,10 +57,10 @@ public class RaccordoProducer {
         Producer<String, String> producer = new KafkaProducer<String, String>(props);
 
 
-        for(int j = 0; j < 10; j++) {
+        for(int j = 0; j < 700; j++) {
             String data = "[";
 
-            data = data + jsonFormat(1000000, 51, 52.12 + 50 + 1, 41.34 + 50 + 1, 0);
+            data = data + jsonFormat(6680 + j, 51, 52.12 + 50 + 1, 41.34 + 50 + 1, 0);
             data = data + "," + jsonFormat(0, 51, 132.12 + 50 + 1, 43.34 + 50 + 1, 10);
             data = data + "," + jsonFormat(0, 51, 0, 1, 1);
             data = data + "," + jsonFormat(0, 1, 1, 1, 2);
@@ -71,7 +73,6 @@ public class RaccordoProducer {
             data = data + "," + jsonFormat(1, 3, 2, 3, 9);
             data = data + "," + jsonFormat(1, 3, 1, 2, 20);
             data = data + "," + jsonFormat(0, 3, 1, 3, 31);
-
 
 
 
@@ -121,6 +122,7 @@ public class RaccordoProducer {
             data = data + "]";
             System.err.println(data);
             producer.send(new ProducerRecord<String, String>(topicName, data));
+            sleep(1000);
         }
 
         producer.close();

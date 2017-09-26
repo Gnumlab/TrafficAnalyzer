@@ -1,3 +1,4 @@
+
 package com.bridgestone.bolt;
 
 
@@ -16,12 +17,13 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
  * Created by balmung on 29/08/17.
  */
-public class SplitterBolt extends BaseRichBolt {
+public class SplitterAreaBolt extends BaseRichBolt {
     private OutputCollector _collector;
     private ObjectMapper mapper;
 
@@ -49,13 +51,18 @@ public class SplitterBolt extends BaseRichBolt {
             JSONArray data = (JSONArray) object;
 
             for(int i = 0; i < data.size(); i++){
-
-                _collector.emit(new Values(data.get(i).toString()));
+                String jsonObject = data.get(i).toString();
+                JsonNode msg = mapper.readTree(jsonData);
+                String x1 = Double.toString(msg.get("x1").asDouble());
+                String y1 = Double.toString(msg.get("y1").asDouble());
+                _collector.emit(new Values(jsonObject, x1 + y1));
 
                 System.err.println("WHAT I RECEIVED " + data.get(i).toString());
             }
 
         } catch (ParseException e) {
+            e.printStackTrace();
+        } catch (IOException e){
             e.printStackTrace();
         } finally {
             _collector.ack(tuple);
@@ -83,6 +90,6 @@ public class SplitterBolt extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("edge"));
+        declarer.declare(new Fields("edge", "fieldgroupkey"));
     }
 }

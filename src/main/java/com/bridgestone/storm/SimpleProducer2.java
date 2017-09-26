@@ -17,16 +17,16 @@ public class SimpleProducer2 {
 
 
         //Assign topicName to string variable
-        double x, y;
+       /* double x, y;
         x = 52.12;
         y = 41.34;
         String topicName = Double.toString(x) + Double.toString(y); //topic name: coordinates of the master section
-
+*/
         // create instance for properties to access producer configs
         Properties props = new Properties();
 
         //Assign localhost id
-        props.put("bootstrap.servers", "54.93.96.33:9092");
+        props.put("bootstrap.servers", "54.93.238.46:9092");
 
         //Set acknowledgements for producer requests.
         props.put("acks", "all");
@@ -52,25 +52,47 @@ public class SimpleProducer2 {
         Producer<String, String> producer = new KafkaProducer<String, String>(props);
 
 
-        for(int j = 0; j < 1; j++) {
+        Double xTopic = 12.3;
+        Double yTopic = 41.8;
+        String topicName = xTopic.toString() + yTopic.toString();
+        boolean first = true;
+        for (int k = 0; k < 10; k++) {
             String data = "[";
+            double x1 = 12.3111 + k*0.0010;
+            double y1 = 41.8111 - k*0.0010;
+            double x2 = 12.3112 + k*0.0010;
+            double y2 = 41.8111 + k*0.0010;
+            for (int j = 0; j < 10; j++, x1 = x2, x2 = x2 + 0.0001) {
 
-            data = data + jsonFormat(52.12, 41.34, 52.12 + 50 + 1, 41.34 + 50 + 1, 0);
-            data = data + "," + jsonFormat(52.12, 41.34, 152.12 + 50 + 1, 41.34 + 50 + 1, 0);
+                //data = data + jsonFormat(52.12, 41.34, 52.12 + 50 + 1, 41.34 + 50 + 1, 0);
+                //data = data + "," + jsonFormat(52.12, 41.34, 152.12 + 50 + 1, 41.34 + 50 + 1, 0);
 
-            for (int i = 0; i < 5; i++) {
-                //Utils.sleep(1);
+                for (int i = 0; i < 50; i++, y1 = y2, y2 = y2 + 0.0001) {
+                    //Utils.sleep(1)
+                    if (first) {
+                        data = data + jsonFormat(x1, y1, x2, y2, i);
+                        first = false;
+                    } else {
+                        data = data + "," + jsonFormat(x1, y1, x2, y2, i);
+                        //System.out.println("Message sent successfully");
+                    }
+                    if(!topicName.equals(getTopicName(x2, y2))){
+                        break;
+                    }
+                }
 
-                data = data + "," + jsonFormat(52.12 + i +j, 41.34 + i +j, 52.12 + i + 1 +j, 41.34 + i + 1 +j, i);
-                //System.out.println("Message sent successfully");
-            }
+                    if(!topicName.equals(getTopicName(x2, y2))) {
+                        data = data + "]";
+                        System.err.println(data);
+                        String zookeeperHost = "54.93.238.46";
+                        KafkaTopicCreator.createTopic(zookeeperHost, topicName);
+                        producer.send(new ProducerRecord<String, String>(topicName, data));
+                        first = true;
+                        topicName = getTopicName(x2, y2);
+                        break;
+                    }
 
-
-            data = data + "]";
-            System.err.println(data);
-            String zookeeperHost = "54.93.96.33";
-            KafkaTopicCreator.createTopic(zookeeperHost, topicName);
-            producer.send(new ProducerRecord<String, String>(topicName, data));
+                }
         }
 
         producer.close();
@@ -80,5 +102,16 @@ public class SimpleProducer2 {
         return "{\"x1\":" + Double.toString(x1) + ",\"y1\":" + Double.toString(y1)
                 + ",\"x2\":" + Double.toString(x2)+ ",\"y2\":" + Double.toString(y2) +
         ",\"speed\":" + Integer.toString(speed) + "}";
+    }
+
+    private static String getTopicName(Double x, Double y){
+        String first = x.toString();
+        String second = y.toString();
+        if(first.length() >= 5) {
+            first = first.substring(0, 5);
+        }
+        if(second.length() >= 5)
+            second= second.substring(0,5);
+        return first + second;
     }
 }
