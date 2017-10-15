@@ -1,28 +1,12 @@
 package com.bridgestone.elasticsearch;
 
-import javafx.scene.NodeBuilder;
-import org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequestBuilder;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
-import org.elasticsearch.action.get.GetRequestBuilder;
+import com.bridgestone.utils.random.Rngs;
+import com.bridgestone.utils.random.Rvgs;
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.node.Node;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
-import static org.elasticsearch.threadpool.ThreadPool.Names.INDEX;
+import static jodd.util.ThreadUtil.sleep;
 
 /**
  * Created by balmung on 08/09/17.
@@ -30,13 +14,28 @@ import static org.elasticsearch.threadpool.ThreadPool.Names.INDEX;
 public class TestElasticsearch {
 
     public static void main(String args[]) {
-        CloudClient cloudClient = new CloudClient();
-        try {
-            GetResponse response = cloudClient.get("search-traffic-analyzer-indexes-faaztbzp3bx3q7hitgjkb44wwi.eu-central-1.es.amazonaws.com", 9300,
-            "streetindex", "streetinfo", "2");
-            System.err.println(response.getSource());
-        } catch (IOException e) {
-            e.printStackTrace();
+        Rvgs rvgs = new Rvgs(new Rngs());
+        int sleepTime = 1;
+        int poissonMean = 10;
+        int count = 50;
+        for(;;) {
+            long requests = rvgs.poisson(poissonMean);
+            for(int i = 0; i < requests; i++) {
+                CloudClient cloudClient = new CloudClient();
+                try {
+                    GetResponse response = cloudClient.get("search-traffic-analyzer-indexes-faaztbzp3bx3q7hitgjkb44wwi.eu-central-1.es.amazonaws.com", 9300,
+                            "streetindex", "streetinfo", "2");
+                    System.err.println(response.getSource());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (count == 50)
+                poissonMean *= 2;
+            if (count == 100)
+                poissonMean *= 2;
+            System.err.println(requests);
+            sleep(sleepTime);
         }
 
     }
