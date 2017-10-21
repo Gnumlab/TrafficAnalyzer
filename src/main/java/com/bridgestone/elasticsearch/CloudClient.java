@@ -40,7 +40,7 @@ public class CloudClient implements ElasticClient {
         RestHighLevelClient client = new RestHighLevelClient(lowClient);
         IndexRequest indexRequest = new IndexRequest(index, type, streetKey)
                 .source(jsonBuilder().startObject()
-                .field("edges", streetKey + "]")
+                .field("edges", edges + "]")
                 .field("section", topic)
                 .field("speed", "50")
                 .field("keyStreet", streetKey)
@@ -50,7 +50,18 @@ public class CloudClient implements ElasticClient {
         return response;
     }
 
-    public GetResponse get(String address, int port, String index, String type, String id) throws IOException {
+    public GetResponse getStreet(String address, int port, String index, String type, String id) throws IOException {
+        //query to elaticsearch: get street by id
+        RestClient lowClient = RestClient.builder(new HttpHost(address, 443, "https")).build();
+        RestHighLevelClient client = new RestHighLevelClient(lowClient);
+        GetResponse response = client.get(new GetRequest(index, type, id));
+
+        lowClient.close();
+        return response;
+    }
+
+    public GetResponse getSection(String address, int port, String index, String type, String id) throws IOException {
+        //query to elaticsearch: get section by id of section itself (it is also a topic name)
         RestClient lowClient = RestClient.builder(new HttpHost(address, 443, "https")).build();
         RestHighLevelClient client = new RestHighLevelClient(lowClient);
         GetResponse response = client.get(new GetRequest(index, type, id));

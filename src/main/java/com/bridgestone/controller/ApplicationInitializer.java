@@ -38,6 +38,7 @@ public class ApplicationInitializer {
 
             this.graph.addNode(node);
         }
+        repository.disconnectFromDB();
 
     }
 
@@ -54,9 +55,10 @@ public class ApplicationInitializer {
             if (topologyGraphController.checkIfCrossroad(node)){
                 for(Edge edge: edges){
                     this.length = 0;
+                    this.repository.connectDB();
                     streetCalc(edge, key);
                     this.repository.insertStreetSpeed(key.toString(), new StreetInfo(0, length));
-
+                    this.repository.disconnectFromDB();
                     key++;
 
                 }
@@ -78,16 +80,17 @@ public class ApplicationInitializer {
                 if (node.getNumberOfEdges() <= 2) {
                     //node has only one outcoming edge so it could be a start of a street
                     this.length = 0;
+                    this.repository.connectDB();
                     streetCalc(edge, key);
                     this.repository.insertStreetSpeed(key.toString(), new StreetInfo(0, length));
-
+                    this.repository.disconnectFromDB();
                     key++;
                 }
             }
         }
 
         this.repository.stampa();
-        this.repository.disconnectFromDB();
+        //this.repository.disconnectFromDB();
 
 
 
@@ -135,6 +138,7 @@ public class ApplicationInitializer {
         Node arrivalNode = this.graph.getNodeByKey(startingEdge.getEndingNode());
 
         /*write arrivalNode into redis with key*/
+
         this.repository.insertEdge(Edge.makeGraphEdgeKey(startingEdge), key.toString());
         //this.standByEdges.remove(Edge.makeGraphEdgeKey(startingEdge));
         this.processed.putIfAbsent(Edge.makeGraphEdgeKey(startingEdge), startingEdge);

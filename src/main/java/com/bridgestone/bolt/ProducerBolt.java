@@ -47,14 +47,14 @@ public class ProducerBolt extends BaseRichBolt{
             releasableLock.acquire();
 
             //ElasticClient client = new LocalClient();
-            ElasticClient client = new LocalClient();
-            client.updateSpeedStreet("localhost", 9300, "streetindex", "streetinfo",
+            ElasticClient client = new CloudClient();
+            client.updateSpeedStreet("search-my-elastic-domain-dioeomsyqpdv2m5yzqghk5wqrq.eu-central-1.es.amazonaws.com", 9300, "streetindex", "streetinfo",
                     streetKey, speed);
            /* UpdateResponse updateResponse = client.prepareUpdate("streetindex", "streetinfo", streetKey)
                     .setScript(new Script("ctx._source.speed=\"" + speed + "\""))
                     .execute()
                     .actionGet();*/
-            //System.err.println("hhhhhhhhhhhhhhgghghghghhhhhhhhh            " + updateResponse.getGetResult().field("speed").getValue()+ "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+            System.err.println("hhhhhhhhhhhhhhgghghghghhhhhhhhh   ELASTIC         "+"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
             releasableLock.close();
 
         } catch (IOException e) {

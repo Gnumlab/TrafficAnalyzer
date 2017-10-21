@@ -20,8 +20,9 @@ public class DocumentsCreator {
     public static void createIndexes(){
 
         RedisRepository repository = RedisRepository.getInstance();
-        repository.connectDB();
-        Map<String, String> edges = repository.getAllEdges();
+        //repository.connectDB();
+        Map<String, String> map = new HashMap<>();
+        Map<String, String> edges = repository.getAllEdges(map);
         //creates the list of edges that compose a street in a Json format: NB: it is yet needed the closure ]
         Map<String, StreetIndexUtil> streets = new HashMap<>();
         for(String edgeKey : edges.keySet()){
@@ -54,20 +55,20 @@ public class DocumentsCreator {
             //.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("127.0.0.1"), 9300));
             //ElasticClient client = new LocalClient();
             ElasticClient client = new CloudClient();
-            String address = "address";
+            String address = "search-my-elastic-domain-dioeomsyqpdv2m5yzqghk5wqrq.eu-central-1.es.amazonaws.com";
             for(String streetKey : streets.keySet()){
                 /*IndexResponse response = client.createIndexes(address, 9300,"streetindex", "streetinfo", streetKey)
                         .setSource(jsonBuilder()
                                 .startObject()
-                                .field("edges", streets.get(streetKey)+ "]")
-                                .field("section", streets.get(streetKey)
+                                .field("edges", streets.getStreet(streetKey)+ "]")
+                                .field("section", streets.getStreet(streetKey)
                                 .field("speed", "50")
                                 .field("keyStreet", streetKey)
                                 .endObject()
                         )
-                        .get();*/
-                //IndexResponse response = client.createIndexes("127.0.0.1", 9300, "streetindex", "streetinfo",streets.get(streetKey), streetKey);
-                IndexResponse response = client.createIndexes("localhost", 9300, "streetindex", "streetinfo",
+                        .getStreet();*/
+                //IndexResponse response = client.createIndexes("127.0.0.1", 9300, "streetindex", "streetinfo",streets.getStreet(streetKey), streetKey);
+                IndexResponse response = client.createIndexes("search-my-elastic-domain-dioeomsyqpdv2m5yzqghk5wqrq.eu-central-1.es.amazonaws.com", 9300, "streetindex", "streetinfo",
                         streets.get(streetKey).getEdges(), streets.get(streetKey).getTopic(), streetKey);
                 System.err.println("                                            _id = " + response.getResult() + response.getIndex() + response.getType() + response.getId());
             }
@@ -84,8 +85,10 @@ public class DocumentsCreator {
     private static String getTopicFromEdge(String edgeKey){
         String[] nodes = edgeKey.split("-");
         String firstNode = nodes[0];
-        String[] values = firstNode.split(".");
+        String[] values = firstNode.split("\\.");
+        System.err.println(firstNode);
         String floatingPart1 = values[1];
+        System.err.println(floatingPart1);
         floatingPart1 = floatingPart1.substring(0,1);
         String floatingPart2 = values[3];
         floatingPart2 = floatingPart2.substring(0,1);

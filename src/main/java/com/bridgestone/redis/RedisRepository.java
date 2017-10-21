@@ -16,9 +16,16 @@ public class RedisRepository {
     private RedissonClient redissonClient;
     //private RedisConnection<String, String> connection;
     private static RedisRepository instance = new RedisRepository();
+    private Config config;
 
     private RedisRepository() {
-        this.connectDB();
+        //this.connectDB();
+        this.config = new Config();
+        /*config.useSingleServer()
+                .setAddress("redis://54.93.249.129:6379");*/
+        this.config.useClusterServers().setScanInterval(2000).addNodeAddress("redis://52.59.206.94:7000")
+                .addNodeAddress("redis://52.59.206.94:7001")
+                .addNodeAddress("redis://52.59.206.94:7002");
     }
 
     public static RedisRepository getInstance() {
@@ -26,14 +33,9 @@ public class RedisRepository {
     }
 
     public void connectDB() {
-        Config config = new Config();
-        /*config.useSingleServer()
-                .setAddress("redis://54.93.249.129:6379");*/
-        config.useClusterServers().setScanInterval(2000).addNodeAddress("redis://54.93.249.129:7000")
-                .addNodeAddress("redis://54.93.249.129:7001")
-                .addNodeAddress("redis://54.93.249.129:7002");
 
         redissonClient = Redisson.create(config);
+        //redissonClient.getMap("graphArea").delete();
     }
 
 
@@ -41,7 +43,7 @@ public class RedisRepository {
 
     /* Insert a new node into db */
     public  void insertNode(Node node){
-
+        //this.connectDB();
         RLock lock = redissonClient.getLock(node.getGraphKey());
         lock.lock();
         System.err.println("try insert " + node.getGraphKey() + " archi " + node.getNumberOfEdges() );
@@ -51,11 +53,13 @@ public class RedisRepository {
 
         map.putIfAbsent(node.getGraphKey(), node);
         lock.unlock();
+        //this.disconnectFromDB();
     }
 
 
     /* replace node into db in order to update the values. This method implies node already exists into db */
     public  void updateNode(Node node){
+        //this.connectDB();
         RLock lock = redissonClient.getLock(node.getGraphKey());
         //while(lock.isLocked()) ;
         lock.lock();
@@ -63,6 +67,7 @@ public class RedisRepository {
         Map<String, Node> map = redissonClient.getMap("graphArea");
         map.put(node.getGraphKey(), node);
         lock.unlock();
+        //this.disconnectFromDB();
     }
 
 
@@ -71,7 +76,7 @@ public class RedisRepository {
         /**insert an edge into a new "table" of redis. Value will be the key identifiers the street
          * NB: edge key already contains all the information about the edge
          */
-
+        //this.connectDB();
         RLock lock = redissonClient.getLock(edgeKey);
         lock.lock();
         Map<String, String> map = redissonClient.getMap("edges");
@@ -80,11 +85,11 @@ public class RedisRepository {
 
         map.putIfAbsent(edgeKey, value);
         lock.unlock();
-
+        //this.disconnectFromDB();
     }
 
     public void updateEdge(String edgeKey, String value){
-
+        //this.connectDB();
         RLock lock = redissonClient.getLock(edgeKey);
         lock.lock();
         Map<String, String> map = redissonClient.getMap("edges");
@@ -93,19 +98,22 @@ public class RedisRepository {
 
         map.put(edgeKey, value);
         lock.unlock();
-
+        //this.disconnectFromDB();
     }
 
     public void updateStreetSpeed(String key, StreetInfo value){
+        //this.connectDB();
         Map<String, StreetInfo> map = redissonClient.getMap("streets");
 
         System.err.println("                        LUNGHEZZAAAAAAA" + value.getLength());
 
 
         map.put(key, value);
+        //this.disconnectFromDB();
     }
 
     public void insertStreetSpeed(String key, StreetInfo value){
+        //this.connectDB();
         RLock lock = redissonClient.getLock(key);
         lock.lock();
         Map<String, StreetInfo> map = redissonClient.getMap("streets");
@@ -114,23 +122,29 @@ public class RedisRepository {
 
         map.putIfAbsent(key, value);
         lock.unlock();
+        //this.disconnectFromDB();
     }
 
     public String getEdge(String key){
+        //this.connectDB();
         RLock lock = redissonClient.getLock(key);
         lock.lock();
         Map<String, String> map = redissonClient.getMap("edges");
+        String s = map.get(key);
         lock.unlock();
-        return map.get(key);
-
+        //this.disconnectFromDB();
+        return s;
     }
 
     public StreetInfo getStreetInfo(String key){
+        //this.connectDB();
         RLock lock = redissonClient.getLock(key);
-        lock.lock();
+        //lock.lock();
         Map<String, StreetInfo> map = redissonClient.getMap("streets");
-        lock.unlock();
-        return map.get(key);
+        //lock.unlock();
+        StreetInfo streetInfo = map.get(key);
+        //this.disconnectFromDB();
+        return streetInfo;
 
 
     }
@@ -194,38 +208,58 @@ public class RedisRepository {
     }
 
     public Node getNode(String nodeKey) {
+        //this.connectDB();
         RLock lock = redissonClient.getLock(nodeKey);
         lock.lock();
 
         Map<String, Node> map = redissonClient.getMap("graphArea");
 
         lock.unlock();
-        return map.get(nodeKey);
+        Node node = map.get(nodeKey);
+        //this.disconnectFromDB();
+        return node;
 
 
     }
 
     public Collection<Node> getAll(){
-
+        this.connectDB();
         Map<String, Node> map = redissonClient.getMap("graphArea");
+        //this.disconnectFromDB();
         return map.values();
     }
 
     public Map<String, Node> getAllNodes(){
-
+        this.connectDB();
         Map<String, Node> map = redissonClient.getMap("graphArea");
+        //this.disconnectFromDB();
         return map;
     }
 
-    public Map<String, String> getAllEdges(){
-
+    public Map<String, String> getAllEdges(Map<String, String> edges){
+        this.connectDB();
         Map<String, String> map = redissonClient.getMap("edges");
+        for(String key: map.keySet()){
+            edges.put(key, map.get(key));
+        }
+        //this.disconnectFromDB();
+        return map;
+    }
+
+    public Map<String, StreetInfo> getAllStreets(Map<String, StreetInfo> streets){
+        this.connectDB();
+        Map<String, StreetInfo> map = redissonClient.getMap("streets");
+        for(String key: map.keySet()){
+            streets.put(key, map.get(key));
+        }
+        //this.disconnectFromDB();
         return map;
     }
 
     public void printEdges(){
         RedisRepository redisRepository = RedisRepository.getInstance();
-        Map<String, String> edges = redisRepository.getAllEdges();
+        Map<String, String> map = new HashMap<>();
+        Map<String, String> edges = redisRepository.getAllEdges(map);
         for (String key: edges.keySet()) {
             System.err.println(key);
         }
@@ -239,14 +273,30 @@ public class RedisRepository {
         }
     }
 
+    public void printStreets(){
+        RedisRepository redisRepository = RedisRepository.getInstance();
+        Map<String, StreetInfo> map = new HashMap<>();
+        Map<String, StreetInfo> nodes = (Map<String, StreetInfo>)redisRepository.getAllStreets(map);
+        System.err.println(nodes.size());
+        for (String key: nodes.keySet()) {
+            System.err.println(key);
+        }
+    }
+
     public static void main( String[] args){
         //Redisson.create();
         RedisRepository redisRepository = RedisRepository.getInstance();
-        Node node = new Node(34.3, 56.8);
+        /*Node node = new Node(34.3, 56.8);
         redisRepository.insertNode(node);
-        System.err.println(redisRepository.getNode(node.getGraphKey()).getGraphKey());
+        System.err.println(redisRepository.getNode(node.getGraphKey()).getGraphKey());*/
         //redisRepository.printEdges();
         redisRepository.printNodes();
+        redisRepository.disconnectFromDB();
+        System.err.print("sdfsfsfsdfsfsfsdfsfsfsdfsfsfsdfsfsfsdfsfsf");
+        redisRepository.printEdges();
+        redisRepository.disconnectFromDB();
+        System.err.print("sdfsfsfsdfsfsfsdfsfsfsdfsfsfsdfsfsfsdfsfsf");
+        redisRepository.printStreets();
         redisRepository.disconnectFromDB();
     }
 

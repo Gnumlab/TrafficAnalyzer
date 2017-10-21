@@ -54,14 +54,14 @@ public class Consumer {
                     case "fast-messages":
                         // the send time is encoded inside the message
                         JsonNode msg = mapper.readTree(record.value());
-                        switch (msg.get("type").asText()) {
+                        switch (msg.getStreet("type").asText()) {
                             case "test":
-                                long latency = (long) ((System.nanoTime() * 1e-9 - msg.get("t").asDouble()) * 1000);
+                                long latency = (long) ((System.nanoTime() * 1e-9 - msg.getStreet("t").asDouble()) * 1000);
                                 stats.recordValue(latency);
                                 global.recordValue(latency);
                                 break;
                             case "marker":
-                                // whenever we get a marker message, we should dump out the stats
+                                // whenever we getStreet a marker message, we should dump out the stats
                                 // note that the number of fast messages won't necessarily be quite constant
                                 System.out.printf("%d messages received in period, latency(min, max, avg, 99%%) = %d, %d, %.1f, %d (ms)\n",
                                         stats.getTotalCount(),
@@ -75,13 +75,13 @@ public class Consumer {
                                 stats.reset();
                                 break;
                             default:
-                                throw new IllegalArgumentException("Illegal message type: " + msg.get("type"));
+                                throw new IllegalArgumentException("Illegal message type: " + msg.getStreet("type"));
                         }
                         break;
                     case "summary-markers":
                         break;
                     default:
-                        throw new IllegalStateException("Shouldn't be possible to get message on topic " + record.topic());
+                        throw new IllegalStateException("Shouldn't be possible to getStreet message on topic " + record.topic());
                 }
             }
         }

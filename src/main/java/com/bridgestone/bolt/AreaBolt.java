@@ -1,6 +1,7 @@
 package com.bridgestone.bolt;
 
 import com.bridgestone.controller.TopologyGraphController;
+import com.bridgestone.kafka.KafkaTopicCreator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
@@ -69,11 +70,12 @@ public class AreaBolt extends BaseRichBolt {
     public static void main(String[] args) throws Exception {
 
         TopologyBuilder builder = new TopologyBuilder();
-        String zkConnString = "54.93.238.46:2181";
+        String zkConnString = "localhost:2181";//"54.93.238.46:2181";
         double x, y;
         x = 52.12;
         y = 41.34;
         String topic = Double.toString(x) + Double.toString(y);
+        KafkaTopicCreator.createTopic("localhost", topic);
         BrokerHosts hosts = new ZkHosts(zkConnString);
 
         SpoutConfig kafkaSpoutConfig = new SpoutConfig (hosts, topic, "/" + topic,

@@ -26,6 +26,7 @@ public class TopologyGraphController {
         this.topology = new GraphArea();
         this.mapper = new ObjectMapper();
         this.repository = RedisRepository.getInstance();
+        this.repository.connectDB();
     }
 
     public static TopologyGraphController getInstance(){

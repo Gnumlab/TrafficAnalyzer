@@ -8,6 +8,9 @@ import com.bridgestone.kafka.KafkaTopicCreator;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.StormSubmitter;
+import org.apache.storm.generated.AlreadyAliveException;
+import org.apache.storm.generated.AuthorizationException;
+import org.apache.storm.generated.InvalidTopologyException;
 import org.apache.storm.kafka.*;
 import org.apache.storm.spout.SchemeAsMultiScheme;
 import org.apache.storm.topology.TopologyBuilder;
@@ -26,12 +29,12 @@ public class StormMain {
 
 
         TopologyBuilder builder = new TopologyBuilder();
-        String zkConnString = "localhost";
+        String zkConnString = "35.158.214.67";//"54.93.238.46"; 35.158.214.67
         /*double x, y;
         x = 52.12;
         y = 41.34;*/
-        double endingX = 12.7;
-        double endingY = 42.0;
+        double endingX = 12.4;
+        double endingY = 41.86;
         for(double x = 12.3; x <= endingX; x = x + 0.1){
             for( double y = 41.75; y<= endingY; y = y + 0.1){
                 String topic = Double.toString(x) + Double.toString(y);
@@ -81,13 +84,23 @@ public class StormMain {
             StormSubmitter.submitTopologyWithProgressBar(args[0], conf, builder.createTopology());
         }
         else {
-
-            LocalCluster cluster = new LocalCluster();
-            cluster.submitTopology("test", conf, builder.createTopology());
+            conf.setNumWorkers(20);
+            conf.setMaxSpoutPending(5000);
+            try {
+                StormSubmitter.submitTopology("test-finale", conf, builder.createTopology());
+            } catch (AlreadyAliveException e) {
+                e.printStackTrace();
+            } catch (InvalidTopologyException e) {
+                e.printStackTrace();
+            } catch (AuthorizationException e) {
+                e.printStackTrace();
+            }
+            /*LocalCluster cluster = new LocalCluster();
+            cluster.submitTopology("test-finale", conf, builder.createTopology());
             System.err.print("Submitted topology\n\n\n\n\n\n\n\n\n\n\n\n\n");
             Utils.sleep(10000000);
             cluster.killTopology("test");
-            cluster.shutdown();
+            cluster.shutdown();*/
         }
     }
 }

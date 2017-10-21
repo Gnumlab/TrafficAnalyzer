@@ -11,6 +11,7 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -19,7 +20,8 @@ import java.util.Map;
 public class UpdateMeanStreetBolt extends BaseRichBolt {
     private OutputCollector _collector;
     private ObjectMapper mapper;
-
+    private Map<String, String> edgesToStreet = new HashMap<>();
+    private Map<String, StreetInfo> streetSpeed = new HashMap<>();
     private RedisRepository repository;
 
 
@@ -28,6 +30,21 @@ public class UpdateMeanStreetBolt extends BaseRichBolt {
         mapper = new ObjectMapper();
         _collector = collector;
         this.repository = RedisRepository.getInstance();
+        synchronized (this.repository) {
+            //this.repository.connectDB();
+            this.repository.getAllEdges(this.edgesToStreet);
+            this.repository.getAllStreets(this.streetSpeed);
+            this.repository.disconnectFromDB();
+        }
+        //boolean stay = true;
+        /*while(stay) {
+            try {
+                this.repository.connectDB();
+                stay = false;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }*/
     }
 
     @Override
@@ -36,16 +53,24 @@ public class UpdateMeanStreetBolt extends BaseRichBolt {
 
         String edge = tuple.getString(0);
 
-        String streetKey = this.repository.getEdge(edge);
-        StreetInfo streetInfo = this.repository.getStreetInfo(streetKey);
-        streetInfo.updateSpeed(tuple.getDouble(1));
-        this.repository.updateStreetSpeed(streetKey, streetInfo);
+        //this.repository.connectDB();
+        try {
+            String streetKey = this.edgesToStreet.get(edge);
+            StreetInfo streetInfo = this.streetSpeed.get(streetKey);
+            streetInfo.updateSpeed(tuple.getDouble(1));
+            this.streetSpeed.put(streetKey, streetInfo);
+            //this.repository.updateStreetSpeed(streetKey, streetInfo);
 
-        _collector.emit(new Values(streetKey, streetInfo.getSpeed()));
+            //this.repository.disconnectFromDB();
 
+            _collector.emit(new Values(streetKey, streetInfo.getSpeed()));
 
-        _collector.ack(tuple);
-
+        }catch(Exception e){
+            e.printStackTrace();
+            System.err.print("\n\n\n\n\n\n\n\n\n\n");
+        }finally {
+            _collector.ack(tuple);
+        }
 
     }
 
