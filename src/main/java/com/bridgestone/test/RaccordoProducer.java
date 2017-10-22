@@ -63,17 +63,17 @@ public class RaccordoProducer {
 
         for(;;) {
             for (int j = 0; j < 2000; j++) {
-                if (j == 1500) {
+                if (j == 500) {
                     y = y + 0.1;
                     topicName = Double.toString(x) + Double.toString(y);
                     KafkaTopicCreator.createTopic(address, topicName);
                 }
-                if (j == 500) {
+                if (j == 1000) {
                     x = x + 0.1;
                     topicName = Double.toString(x) + Double.toString(y);
                     KafkaTopicCreator.createTopic(address, topicName);
                 }
-                if (j == 1000) {
+                if (j == 1500) {
                     y = y - 0.1;
                     topicName = Double.toString(x) + Double.toString(y);
                     KafkaTopicCreator.createTopic(address, topicName);
