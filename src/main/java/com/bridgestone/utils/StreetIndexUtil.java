@@ -29,6 +29,6 @@ public class StreetIndexUtil {
     }
 
     public void updateEdges(String updatingString){
-        this.edges.concat(updatingString);
+        this.edges = this.edges + updatingString;
     }
 }

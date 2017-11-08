@@ -89,7 +89,7 @@ public class ApplicationInitializer {
             }
         }
 
-        this.repository.stampa();
+        //this.repository.stampa();
         //this.repository.disconnectFromDB();
 
 

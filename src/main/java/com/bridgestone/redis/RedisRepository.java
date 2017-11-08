@@ -261,7 +261,8 @@ public class RedisRepository {
         Map<String, String> map = new HashMap<>();
         Map<String, String> edges = redisRepository.getAllEdges(map);
         for (String key: edges.keySet()) {
-            System.err.println(key);
+            System.err.print(key + "\t");
+            System.err.println(edges.get(key));
         }
     }
 
@@ -269,7 +270,8 @@ public class RedisRepository {
         RedisRepository redisRepository = RedisRepository.getInstance();
         Map<String, Node> nodes = (Map<String, Node>)redisRepository.getAllNodes();
         for (String key: nodes.keySet()) {
-            System.err.println(key);
+            System.err.print(key + "\t");
+            System.err.println(nodes.get(key).getNumberOfEdges());
         }
     }
 
@@ -279,7 +281,8 @@ public class RedisRepository {
         Map<String, StreetInfo> nodes = (Map<String, StreetInfo>)redisRepository.getAllStreets(map);
         System.err.println(nodes.size());
         for (String key: nodes.keySet()) {
-            System.err.println(key);
+            System.err.print(key + "\t");
+            System.err.println(nodes.get(key).getLength());
         }
     }
 

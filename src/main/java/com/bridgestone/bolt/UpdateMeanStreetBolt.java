@@ -31,10 +31,17 @@ public class UpdateMeanStreetBolt extends BaseRichBolt {
         _collector = collector;
         this.repository = RedisRepository.getInstance();
         synchronized (this.repository) {
-            //this.repository.connectDB();
-            this.repository.getAllEdges(this.edgesToStreet);
-            this.repository.getAllStreets(this.streetSpeed);
-            this.repository.disconnectFromDB();
+            boolean prepared = false;
+            while(!prepared) {
+                try {
+                    this.repository.getAllEdges(this.edgesToStreet);
+                    this.repository.getAllStreets(this.streetSpeed);
+                    this.repository.disconnectFromDB();
+                    prepared = true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
         //boolean stay = true;
         /*while(stay) {

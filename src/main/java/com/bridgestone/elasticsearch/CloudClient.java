@@ -7,10 +7,19 @@ import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.SimpleQueryStringBuilder;
+import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
@@ -60,13 +69,37 @@ public class CloudClient implements ElasticClient {
         return response;
     }
 
-    public GetResponse getSection(String address, int port, String index, String type, String id) throws IOException {
+    public SearchHit[] getSection(String address, int port, String index, String type, String section) throws IOException {
         //query to elaticsearch: get section by id of section itself (it is also a topic name)
-        RestClient lowClient = RestClient.builder(new HttpHost(address, 443, "https")).build();
+        RestClient lowClient = RestClient.builder(new HttpHost(address, port, "https")).build();
         RestHighLevelClient client = new RestHighLevelClient(lowClient);
-        GetResponse response = client.get(new GetRequest(index, type, id));
+        TermQueryBuilder builder = QueryBuilders.termQuery("section", section);
+        QueryBuilder matchSpecificFieldQuery= QueryBuilders.boolQuery().filter(builder);
+        SearchRequest searchRequest = new SearchRequest(index);
+        searchRequest.types(type);
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(matchSpecificFieldQuery);
+        searchRequest.source(searchSourceBuilder);
+        SearchResponse searchResponse = client.search(searchRequest);
+        SearchHits hits = searchResponse.getHits();
+        SearchHit[] searchHits = hits.getHits();
+        return searchHits;
+    }
 
-        lowClient.close();
-        return response;
+    public SearchHit[] getNodeByEdge(String address, int port, String index, String type, String edge) throws IOException{
+        RestClient lowClient = RestClient.builder(new HttpHost(address, port, "https")).build();
+        RestHighLevelClient client = new RestHighLevelClient(lowClient);
+        SimpleQueryStringBuilder builder = QueryBuilders.simpleQueryStringQuery("+" + edge).
+                field("edges").boost(2.0f);
+        QueryBuilder matchSpecificFieldQuery= QueryBuilders.boolQuery().must(builder);
+        SearchRequest searchRequest = new SearchRequest(index);
+        searchRequest.types(type);
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(matchSpecificFieldQuery);
+        searchRequest.source(searchSourceBuilder);
+        SearchResponse searchResponse = client.search(searchRequest);
+        SearchHits hits = searchResponse.getHits();
+        SearchHit[] searchHits = hits.getHits();
+        return searchHits;
     }
 }

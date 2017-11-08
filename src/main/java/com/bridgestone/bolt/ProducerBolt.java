@@ -61,9 +61,12 @@ public class ProducerBolt extends BaseRichBolt{
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
-        } catch (ExecutionException e) {
+        }catch (ExecutionException e) {
             e.printStackTrace();
-        } finally {
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        finally {
             _collector.ack(tuple);
         }
 

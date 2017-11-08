@@ -53,7 +53,7 @@ public class SimpleProducer2 {
 
 
         Double xTopic = 12.3;
-        Double yTopic = 41.8;
+        Double yTopic = 41.75;
         String topicName = xTopic.toString() + yTopic.toString();
         boolean first = true;
         for (int k = 0; k < 10; k++) {

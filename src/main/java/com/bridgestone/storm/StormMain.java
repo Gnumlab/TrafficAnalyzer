@@ -84,7 +84,7 @@ public class StormMain {
             StormSubmitter.submitTopologyWithProgressBar(args[0], conf, builder.createTopology());
         }
         else {
-            conf.setNumWorkers(20);
+            conf.setNumWorkers(10);
             conf.setMaxSpoutPending(5000);
             try {
                 StormSubmitter.submitTopology("test-finale", conf, builder.createTopology());

@@ -34,7 +34,7 @@ public class TopologyGraphController {
     }
 
 
-    public void updateGraphTopology(String jsonData) throws IOException {
+    public void updateGraphTopology(String jsonData) throws Exception {
 
 
         //this.repository.connectDB();
@@ -44,7 +44,6 @@ public class TopologyGraphController {
         Node arrivalNode = this.makeNode(msg, 2);
 
         Edge edge = this.makeEdge(msg, startingNode, arrivalNode);
-        System.out.println("UPDATE GRAPH " + edge.getStartNode() +"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 
         /**IMPORTANT:
          * the GraphArea method 'addSection()' uses the 'putIfAbsent()' operation of the HashMap class:
@@ -54,65 +53,52 @@ public class TopologyGraphController {
 
 
         synchronized (this) {
-            //TopologyGtaphController is a singleton then this is unique
-            if (!this.topology.contains(startingNode)) {
-                System.err.println("Non c0è nulla");
-                // new section and edge to insert
-                //remember vectors are added to the starting size
-                startingNode.addEdge(edge);
-                this.topology.addNode(startingNode);
-                this.repository.insertNode(startingNode);
-                this.topology.addNode(arrivalNode); // even the arrival section might be new !!!
-                this.repository.insertNode(arrivalNode);
+         try {   //TopologyGtaphController is a singleton then this is unique
+             if (!this.topology.contains(startingNode)) {
+                 // new section and edge to insert
+                 //remember vectors are added to the starting size
+                 startingNode.addEdge(edge);
+                 this.topology.addNode(startingNode);
+                 this.topology.addNode(arrivalNode); // even the arrival section might be new !!!
+                 this.repository.insertNode(startingNode);
+                 this.repository.insertNode(arrivalNode);
 
 
-            } else if (!this.topology.contains(arrivalNode)) {
-                System.err.println("Non solo uno nulla");
-                //the starting section exists but not the arrival one: there is always a new edge to insert
+             } else if (!this.topology.contains(arrivalNode)) {
+                 //the starting section exists but not the arrival one: there is always a new edge to insert
 
-                Node updatingNode = this.getNodeByCoordinates(startingNode.getX(), startingNode.getY()); //taking the section to add the edge
-                updatingNode.addEdge(edge);
+                 Node updatingNode = this.getNodeByCoordinates(startingNode.getX(), startingNode.getY()); //taking the section to add the edge
+                 updatingNode.addEdge(edge);
 
-                this.topology.updateNode(updatingNode);
-                this.repository.updateNode(updatingNode);
-
-                this.topology.addNode(arrivalNode);
-                this.repository.insertNode(arrivalNode);
+                 this.topology.updateNode(updatingNode);
+                 this.topology.addNode(arrivalNode);
+                 this.repository.updateNode(updatingNode);
+                 this.repository.insertNode(arrivalNode);
 
 
-            } else {//both the sections exists
-                System.err.println("ALLL INNNNNNNNNNNN");
-                //the edge may not exists: create or updating the mean speed of the already existing edge
-                Node updatingNode = this.getNodeByCoordinates(startingNode.getX(), startingNode.getY()); //taking the section containing the edge
+             } else {//both the sections exists
+                 //the edge may not exists: create it
+                 Node updatingNode = this.getNodeByCoordinates(startingNode.getX(), startingNode.getY()); //taking the section containing the edge
 
-                // taking and updating the edge
-                Edge updatingEdge = updatingNode.getEdge(Edge.makeGraphEdgeKey(edge));
+                 // taking and updating the edge
+                 Edge updatingEdge = updatingNode.getEdge(Edge.makeGraphEdgeKey(edge));
 
-                if (updatingEdge == null) {
-                    //case: the edge doesn't exist
+                 if (updatingEdge == null) {
+                     //case: the edge doesn't exist
 
-                    /** edges always inserted in both sides: if the first doesn't exist so it won't the other one
-                     *  there is need to update both nodes
-                     */
-                    arrivalNode = this.topology.getNodeByKey(arrivalNode.getGraphKey());
+                     updatingNode.addEdge(edge);
 
-                    updatingNode.addEdge(edge);
-
-                    /*updatingEdge.setSpeed(updatingEdge.getSpeed() * 0.4 + edge.getSpeed() * 0.6);
-                    updatingNode.updateEdge(updatingEdge);*/
-                    this.topology.updateNode(updatingNode);
-                    this.repository.updateNode(updatingNode);
-
-                }
-
-            }
+                     this.topology.updateNode(updatingNode);
+                     this.repository.updateNode(updatingNode);
+                 }
+             }
+         }catch (Exception e){
+             e.printStackTrace();
+             //re-initializing Bolt's connection to redis
+             this.repository.disconnectFromDB();
+             this.repository.connectDB();
+         }
         }
-
-        //this.repository.stampa();
-
-        //this.repository.disconnectFromDB();
-
-
     }
 
     public Node getNodeByCoordinates(double x, double y){

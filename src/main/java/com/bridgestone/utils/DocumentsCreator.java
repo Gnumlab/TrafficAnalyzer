@@ -5,6 +5,7 @@ import com.bridgestone.redis.RedisRepository;
 import org.elasticsearch.action.index.IndexResponse;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -32,7 +33,7 @@ public class DocumentsCreator {
                 StreetIndexUtil transientStreet = streets.get(streetKey);
                 transientStreet.updateEdges(",{" + edgeKey + "}");
                 streets.put(streetKey, transientStreet);
-                System.err.println("ID " + streetKey + " VALORE: " + transientStreet);
+                System.err.println("ID " + streetKey + " VALORE: " + transientStreet.getEdges());
             } else {
                 //create the first element of the array and the array itself
                 StreetIndexUtil initialStreet = new StreetIndexUtil("[{" + edgeKey + "}",
@@ -56,7 +57,7 @@ public class DocumentsCreator {
             //ElasticClient client = new LocalClient();
             ElasticClient client = new CloudClient();
             String address = "search-my-elastic-domain-dioeomsyqpdv2m5yzqghk5wqrq.eu-central-1.es.amazonaws.com";
-            for(String streetKey : streets.keySet()){
+            for(String streetKey : streets.keySet()) {
                 /*IndexResponse response = client.createIndexes(address, 9300,"streetindex", "streetinfo", streetKey)
                         .setSource(jsonBuilder()
                                 .startObject()
@@ -68,9 +69,17 @@ public class DocumentsCreator {
                         )
                         .getStreet();*/
                 //IndexResponse response = client.createIndexes("127.0.0.1", 9300, "streetindex", "streetinfo",streets.getStreet(streetKey), streetKey);
-                IndexResponse response = client.createIndexes("search-my-elastic-domain-dioeomsyqpdv2m5yzqghk5wqrq.eu-central-1.es.amazonaws.com", 9300, "streetindex", "streetinfo",
-                        streets.get(streetKey).getEdges(), streets.get(streetKey).getTopic(), streetKey);
-                System.err.println("                                            _id = " + response.getResult() + response.getIndex() + response.getType() + response.getId());
+                boolean stay = true;
+                while (stay) {
+                    try {
+                        IndexResponse response = client.createIndexes(address /*"search-my-elastic-domain-dioeomsyqpdv2m5yzqghk5wqrq.eu-central-1.es.amazonaws.com"*/, 9300, "streetindex", "streetinfo",
+                                streets.get(streetKey).getEdges(), streets.get(streetKey).getTopic(), streetKey);
+                        System.err.println("                                            _id = " + response.getResult() + response.getIndex() + response.getType() + response.getId());
+                        stay = false;
+                    }catch (ConnectException e){
+                        e.printStackTrace();
+                    }
+                }
             }
             //client.close();
         } catch (IOException e) {
