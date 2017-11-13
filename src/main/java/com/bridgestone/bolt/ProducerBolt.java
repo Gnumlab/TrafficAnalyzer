@@ -2,6 +2,7 @@ package com.bridgestone.bolt;
 
 import com.bridgestone.elasticsearch.CloudClient;
 import com.bridgestone.elasticsearch.LocalClient;
+import com.bridgestone.properties.ApplicationProperties;
 import com.bridgestone.utils.ElasticClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.storm.task.OutputCollector;
@@ -50,6 +51,8 @@ public class ProducerBolt extends BaseRichBolt{
             ElasticClient client = new CloudClient();
             client.updateSpeedStreet("search-my-elastic-domain-dioeomsyqpdv2m5yzqghk5wqrq.eu-central-1.es.amazonaws.com", 9300, "streetindex", "streetinfo",
                     streetKey, speed);
+            /***client.updateSpeedStreet(ApplicationProperties.getElasticSearchAddress(), 9300, "streetindex", "streetinfo",
+                    streetKey, speed); */
            /* UpdateResponse updateResponse = client.prepareUpdate("streetindex", "streetinfo", streetKey)
                     .setScript(new Script("ctx._source.speed=\"" + speed + "\""))
                     .execute()

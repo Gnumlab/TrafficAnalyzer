@@ -1,6 +1,7 @@
 package com.bridgestone.redis;
 
 import com.bridgestone.entity.Node;
+import com.bridgestone.properties.ApplicationProperties;
 import com.bridgestone.utils.StreetInfo;
 import org.redisson.Redisson;
 import org.redisson.api.*;
@@ -26,6 +27,12 @@ public class RedisRepository {
         this.config.useClusterServers().setScanInterval(2000).addNodeAddress("redis://52.59.206.94:7000")
                 .addNodeAddress("redis://52.59.206.94:7001")
                 .addNodeAddress("redis://52.59.206.94:7002");
+        /*String address = ApplicationProperties.getRedisAddress();
+        this.config.useClusterServers().setScanInterval(2000).addNodeAddress("redis://" + address +
+                ":" + ApplicationProperties.getRedisFirstPort())
+                .addNodeAddress("redis://" + address + ":" + ApplicationProperties.getRedisSecondPort())
+                .addNodeAddress("redis://" + address + ":" + ApplicationProperties.getRedisThirdPort());
+        */
     }
 
     public static RedisRepository getInstance() {

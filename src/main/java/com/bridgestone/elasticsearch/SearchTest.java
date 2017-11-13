@@ -1,5 +1,6 @@
 package com.bridgestone.elasticsearch;
 
+import com.bridgestone.properties.ApplicationProperties;
 import org.apache.http.HttpHost;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -78,6 +79,7 @@ public class SearchTest {
             e.printStackTrace();
         }*/
         CloudClient cloudClient= new CloudClient();
+        /****String address = ApplicationProperties.getElasticSearchAddress();*/
         String address = "search-my-elastic-domain-dioeomsyqpdv2m5yzqghk5wqrq.eu-central-1.es.amazonaws.com";
         SearchHit[] searchHits = null;
         try {

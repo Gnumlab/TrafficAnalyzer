@@ -3,6 +3,7 @@ package com.bridgestone.controller;
 import com.bridgestone.entity.Edge;
 import com.bridgestone.entity.GraphArea;
 import com.bridgestone.entity.Node;
+import com.bridgestone.properties.ApplicationProperties;
 import com.bridgestone.redis.RedisRepository;
 import com.bridgestone.utils.DocumentsCreator;
 import com.bridgestone.utils.StreetInfo;
@@ -22,6 +23,7 @@ public class ApplicationInitializer {
 
     private RedisRepository repository;
     private ApplicationInitializer() {
+        /***ApplicationProperties.loadProperties();*/
         this.repository = RedisRepository.getInstance();
         this.graph = new GraphArea();
         this.standByEdges = new HashMap<>();

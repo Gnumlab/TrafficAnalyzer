@@ -1,6 +1,7 @@
 package com.bridgestone.utils;
 
 import com.bridgestone.elasticsearch.CloudClient;
+import com.bridgestone.properties.ApplicationProperties;
 import com.bridgestone.redis.RedisRepository;
 import org.elasticsearch.action.index.IndexResponse;
 
@@ -56,6 +57,7 @@ public class DocumentsCreator {
             //.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("127.0.0.1"), 9300));
             //ElasticClient client = new LocalClient();
             ElasticClient client = new CloudClient();
+            /*****String address = ApplicationProperties.getElasticSearchAddress(); */
             String address = "search-my-elastic-domain-dioeomsyqpdv2m5yzqghk5wqrq.eu-central-1.es.amazonaws.com";
             for(String streetKey : streets.keySet()) {
                 /*IndexResponse response = client.createIndexes(address, 9300,"streetindex", "streetinfo", streetKey)

@@ -5,6 +5,7 @@ import com.bridgestone.bolt.ProducerBolt;
 import com.bridgestone.bolt.SplitterBolt;
 import com.bridgestone.bolt.UpdateMeanStreetBolt;
 import com.bridgestone.kafka.KafkaTopicCreator;
+import com.bridgestone.properties.ApplicationProperties;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.StormSubmitter;
@@ -29,6 +30,7 @@ public class StormMain {
 
 
         TopologyBuilder builder = new TopologyBuilder();
+        /*String zkConnString = ApplicationProperties.getKafkaAddress();*/
         String zkConnString = "35.158.214.67";//"54.93.238.46"; 35.158.214.67
         /*double x, y;
         x = 52.12;
@@ -77,6 +79,10 @@ public class StormMain {
 
         Config conf = new Config();
         conf.setDebug(false);
+
+        /********************************
+         ApplicationProperties.loadProperties();
+         */
 
         if (args != null && args.length > 0) {
             conf.setNumWorkers(3);
