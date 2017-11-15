@@ -30,8 +30,9 @@ public class StormMain {
 
 
         TopologyBuilder builder = new TopologyBuilder();
-        /*String zkConnString = ApplicationProperties.getKafkaAddress();*/
-        String zkConnString = "35.158.214.67";//"54.93.238.46"; 35.158.214.67
+        ApplicationProperties.loadProperties();
+        String zkConnString = ApplicationProperties.getKafkaAddress();
+        //String zkConnString = "35.158.214.67";//"54.93.238.46"; 35.158.214.67
         /*double x, y;
         x = 52.12;
         y = 41.34;*/

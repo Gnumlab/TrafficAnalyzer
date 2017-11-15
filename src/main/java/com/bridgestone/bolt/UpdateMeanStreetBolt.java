@@ -31,6 +31,7 @@ public class UpdateMeanStreetBolt extends BaseRichBolt {
         _collector = collector;
         this.repository = RedisRepository.getInstance();
         synchronized (this.repository) {
+            /** done only once for all the threads of the same worker */
             boolean prepared = false;
             while(!prepared) {
                 try {
@@ -38,6 +39,8 @@ public class UpdateMeanStreetBolt extends BaseRichBolt {
                     this.repository.getAllStreets(this.streetSpeed);
                     this.repository.disconnectFromDB();
                     prepared = true;
+                    /* exiting only if all the data are retrieved, else it will retry until
+                       no exception are met */
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

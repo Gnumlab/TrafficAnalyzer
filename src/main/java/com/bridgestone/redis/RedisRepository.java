@@ -24,15 +24,15 @@ public class RedisRepository {
         this.config = new Config();
         /*config.useSingleServer()
                 .setAddress("redis://54.93.249.129:6379");*/
-        this.config.useClusterServers().setScanInterval(2000).addNodeAddress("redis://52.59.206.94:7000")
+        /*this.config.useClusterServers().setScanInterval(2000).addNodeAddress("redis://52.59.206.94:7000")
                 .addNodeAddress("redis://52.59.206.94:7001")
-                .addNodeAddress("redis://52.59.206.94:7002");
-        /*String address = ApplicationProperties.getRedisAddress();
+                .addNodeAddress("redis://52.59.206.94:7002");*/
+        ApplicationProperties.loadProperties();
+        String address = ApplicationProperties.getRedisAddress();
         this.config.useClusterServers().setScanInterval(2000).addNodeAddress("redis://" + address +
                 ":" + ApplicationProperties.getRedisFirstPort())
                 .addNodeAddress("redis://" + address + ":" + ApplicationProperties.getRedisSecondPort())
                 .addNodeAddress("redis://" + address + ":" + ApplicationProperties.getRedisThirdPort());
-        */
     }
 
     public static RedisRepository getInstance() {

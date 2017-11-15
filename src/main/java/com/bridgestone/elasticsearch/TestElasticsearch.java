@@ -1,5 +1,6 @@
 package com.bridgestone.elasticsearch;
 
+import com.bridgestone.properties.ApplicationProperties;
 import com.bridgestone.utils.random.Rngs;
 import com.bridgestone.utils.random.Rvgs;
 import org.apache.http.HttpHost;
@@ -25,7 +26,7 @@ import static jodd.util.ThreadUtil.sleep;
 public class TestElasticsearch {
     public static void main(String args[]) {
         Rvgs rvgs = new Rvgs(new Rngs());
-
+        ApplicationProperties.loadProperties();
         int sleepTime = 200;
         int poissonMean = 10;
         int count = 0;
@@ -35,7 +36,7 @@ public class TestElasticsearch {
             for(int i = 0; i < requests; i++) {
                 CloudClient cloudClient = new CloudClient();
                 try {
-                    GetResponse response = cloudClient.getStreet("search-my-elastic-domain-dioeomsyqpdv2m5yzqghk5wqrq.eu-central-1.es.amazonaws.com", 9300,
+                    GetResponse response = cloudClient.getStreet(ApplicationProperties.getElasticSearchAddress(), 9300,
                             "streetindex", "streetinfo", Integer.toString(i%25));
                     System.err.println(response.getSource() + "\t" + response.getIndex() +
                             "\t" + response.getType() + "\t" + response.getId());

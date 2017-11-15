@@ -52,7 +52,7 @@ public class TopologyGraphController {
          */
 
 
-        synchronized (this) {
+        synchronized (this) { // all the treads of the single worker are synchronized
          try {   //TopologyGtaphController is a singleton then this is unique
              if (!this.topology.contains(startingNode)) {
                  // new section and edge to insert

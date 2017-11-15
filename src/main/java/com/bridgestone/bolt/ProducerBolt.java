@@ -28,6 +28,7 @@ public class ProducerBolt extends BaseRichBolt{
     private OutputCollector _collector;
     private ObjectMapper mapper;
     private ReleasableLock releasableLock;
+    private String elasticSearchAddress;
 
     @Override
     public void prepare(Map conf, TopologyContext context, OutputCollector collector) {
@@ -35,6 +36,8 @@ public class ProducerBolt extends BaseRichBolt{
         _collector = collector;
         ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
         releasableLock = new ReleasableLock(rwl.writeLock());
+        ApplicationProperties.loadProperties();
+        elasticSearchAddress = ApplicationProperties.getElasticSearchAddress();
     }
 
     @Override
@@ -49,10 +52,10 @@ public class ProducerBolt extends BaseRichBolt{
 
             //ElasticClient client = new LocalClient();
             ElasticClient client = new CloudClient();
-            client.updateSpeedStreet("search-my-elastic-domain-dioeomsyqpdv2m5yzqghk5wqrq.eu-central-1.es.amazonaws.com", 9300, "streetindex", "streetinfo",
+            /*client.updateSpeedStreet("search-my-elastic-domain-dioeomsyqpdv2m5yzqghk5wqrq.eu-central-1.es.amazonaws.com", 9300, "streetindex", "streetinfo",
+                    streetKey, speed);*/
+            client.updateSpeedStreet(elasticSearchAddress, 9300, "streetindex", "streetinfo",
                     streetKey, speed);
-            /***client.updateSpeedStreet(ApplicationProperties.getElasticSearchAddress(), 9300, "streetindex", "streetinfo",
-                    streetKey, speed); */
            /* UpdateResponse updateResponse = client.prepareUpdate("streetindex", "streetinfo", streetKey)
                     .setScript(new Script("ctx._source.speed=\"" + speed + "\""))
                     .execute()

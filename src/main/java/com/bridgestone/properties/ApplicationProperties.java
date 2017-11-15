@@ -27,7 +27,7 @@ public class ApplicationProperties {
         try {
 
             String filename = "config.properties";
-            input = new FileInputStream("config.properties");
+            input = new FileInputStream("./Application.properties");
 
             if(input==null){
                 System.out.println("Sorry, unable to find " + filename + "; System will exit!");

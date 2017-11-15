@@ -80,7 +80,8 @@ public class SearchTest {
         }*/
         CloudClient cloudClient= new CloudClient();
         /****String address = ApplicationProperties.getElasticSearchAddress();*/
-        String address = "search-my-elastic-domain-dioeomsyqpdv2m5yzqghk5wqrq.eu-central-1.es.amazonaws.com";
+        ApplicationProperties.loadProperties();
+        String address = ApplicationProperties.getElasticSearchAddress();
         SearchHit[] searchHits = null;
         try {
             searchHits = cloudClient.getSection(address, 443, "streetindex",
