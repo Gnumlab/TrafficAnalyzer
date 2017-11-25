@@ -25,16 +25,8 @@ public class Edge {
         return startNode;
     }
 
-   /* public void setStartNode(Node startNode) {
-        this.startNode = startNode;
-    }*/
-
     public String getEndingNode() {
         return endingNode;
-    }
-
-    public void setEndingNode(String endingNode) {
-        this.endingNode = endingNode;
     }
 
     public double getSpeed() {
@@ -45,13 +37,8 @@ public class Edge {
         this.speed = speed;
     }
 
-
-
     public static String makeGraphEdgeKey(Edge edge){
         return edge.getStartNode() + "-" + edge.getEndingNode();
     }
 
-    public void updateSpeed(double speed) {
-        this.speed = this.speed*0.25 + speed*0.75;
-    }
 }

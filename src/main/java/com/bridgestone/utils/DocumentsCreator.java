@@ -18,7 +18,6 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
  */
 public class DocumentsCreator {
 
-    //search-traffic-analyzer-indexes-faaztbzp3bx3q7hitgjkb44wwi.eu-central-1.es.amazonaws.com
     public static void createIndexes(){
 
         RedisRepository repository = RedisRepository.getInstance();
@@ -57,24 +56,14 @@ public class DocumentsCreator {
             //.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("127.0.0.1"), 9300));
             //ElasticClient client = new LocalClient();
             ElasticClient client = new CloudClient();
-            /*****String address = ApplicationProperties.getElasticSearchAddress(); */
-            String address = "search-my-elastic-domain-dioeomsyqpdv2m5yzqghk5wqrq.eu-central-1.es.amazonaws.com";
+            String address = ApplicationProperties.getElasticSearchAddress();
+            //String address = "search-my-elastic-domain-dioeomsyqpdv2m5yzqghk5wqrq.eu-central-1.es.amazonaws.com";
             for(String streetKey : streets.keySet()) {
-                /*IndexResponse response = client.createIndexes(address, 9300,"streetindex", "streetinfo", streetKey)
-                        .setSource(jsonBuilder()
-                                .startObject()
-                                .field("edges", streets.getStreet(streetKey)+ "]")
-                                .field("section", streets.getStreet(streetKey)
-                                .field("speed", "50")
-                                .field("keyStreet", streetKey)
-                                .endObject()
-                        )
-                        .getStreet();*/
-                //IndexResponse response = client.createIndexes("127.0.0.1", 9300, "streetindex", "streetinfo",streets.getStreet(streetKey), streetKey);
                 boolean stay = true;
+                /* we want to be sure that the indexes are created */
                 while (stay) {
                     try {
-                        IndexResponse response = client.createIndexes(address /*"search-my-elastic-domain-dioeomsyqpdv2m5yzqghk5wqrq.eu-central-1.es.amazonaws.com"*/, 9300, "streetindex", "streetinfo",
+                        IndexResponse response = client.createIndexes(address, 9300, "streetindex", "streetinfo",
                                 streets.get(streetKey).getEdges(), streets.get(streetKey).getTopic(), streetKey);
                         System.err.println("                                            _id = " + response.getResult() + response.getIndex() + response.getType() + response.getId());
                         stay = false;
@@ -83,7 +72,7 @@ public class DocumentsCreator {
                     }
                 }
             }
-            //client.close();
+
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {

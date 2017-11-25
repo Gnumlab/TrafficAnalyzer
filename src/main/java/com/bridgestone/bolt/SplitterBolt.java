@@ -22,25 +22,20 @@ import java.util.Map;
  * Created by balmung on 29/08/17.
  */
 public class SplitterBolt extends BaseRichBolt {
+
     private OutputCollector _collector;
-    private ObjectMapper mapper;
 
 
     @Override
     public void prepare(Map conf, TopologyContext context, OutputCollector collector) {
-        mapper = new ObjectMapper();
         _collector = collector;
     }
 
 
     @Override
     public void execute(Tuple tuple) {
-        System.err.println("received" + tuple.getString(0) + "!!!" + "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-        String jsonData = tuple.getString(0);
 
-        /*JsonNode msg = mapper.readTree(jsonData);
-        JsonNode data = msg.get("data");
-        System.err.println("WHAT I RECEIVED " + data.textValue());*/
+        String jsonData = tuple.getString(0);
 
         JSONParser parser = new JSONParser();
         try {
@@ -52,7 +47,6 @@ public class SplitterBolt extends BaseRichBolt {
 
                 _collector.emit(new Values(data.get(i).toString()));
 
-                System.err.println("WHAT I RECEIVED " + data.get(i).toString());
             }
 
         } catch (ParseException e) {
@@ -61,23 +55,6 @@ public class SplitterBolt extends BaseRichBolt {
             _collector.ack(tuple);
         }
 
-
-        /*JsonReader reader = Json.createReader(new StringReader(jsonData));
-        JsonObject data = reader.readObject();
-        reader.close();
-
-        System.err.println("WHAT I RECEIVED " + data.toString());
-        JsonValue record = data.get("data");
-
-        for(int i  = 0; i < record.size(); i++) {
-
-            System.err.println("WHAT I   " + record.toString());
-        }*/
-
-        /*for(int i = 0; i < data.size(); i++){
-            JsonNode record = data.get(i);
-            System.err.println("WHAT I RECEIVED " + record.textValue());
-        }*/
     }
 
 

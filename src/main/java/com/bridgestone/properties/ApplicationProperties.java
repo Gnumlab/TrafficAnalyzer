@@ -10,6 +10,10 @@ import java.util.Properties;
  */
 public class ApplicationProperties {
 
+    /** reads properties values from a file and sets them in the class in order to make them available
+     * to all the components that request them
+     */
+
     private static String kafkaAddress = null;
     private static String elasticSearchAddress = null;
     private static String redisAddress = null;

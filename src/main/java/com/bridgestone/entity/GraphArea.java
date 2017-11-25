@@ -17,10 +17,6 @@ public class GraphArea { // the entire area managed by a single node
         return graph;
     }
 
-    public void setGraph(Map<String, Node> graph) {
-        this.graph = graph;
-    }
-
     public void addNode(Node node){
         this.graph.putIfAbsent(node.getGraphKey(),node);
     }

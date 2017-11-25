@@ -24,6 +24,8 @@ import java.util.Map;
  * Created by balmung on 29/08/17.
  */
 public class SplitterAreaBolt extends BaseRichBolt {
+    /**it receives the array of arcs and splits them, sending single arcs to the next bolt */
+
     private OutputCollector _collector;
     private ObjectMapper mapper;
 
@@ -37,12 +39,8 @@ public class SplitterAreaBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple tuple) {
-        System.err.println("received" + tuple.getString(0) + "!!!" + "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-        String jsonData = tuple.getString(0);
 
-        /*JsonNode msg = mapper.readTree(jsonData);
-        JsonNode data = msg.get("data");
-        System.err.println("WHAT I RECEIVED " + data.textValue());*/
+        String jsonData = tuple.getString(0);
 
         JSONParser parser = new JSONParser();
         try {
@@ -56,8 +54,6 @@ public class SplitterAreaBolt extends BaseRichBolt {
                 String x1 = Double.toString(msg.get("x1").asDouble());
                 String y1 = Double.toString(msg.get("y1").asDouble());
                 _collector.emit(new Values(jsonObject, x1 + y1));
-
-                System.err.println("WHAT I RECEIVED " + data.get(i).toString());
             }
 
         } catch (ParseException e) {
@@ -68,23 +64,6 @@ public class SplitterAreaBolt extends BaseRichBolt {
             _collector.ack(tuple);
         }
 
-
-        /*JsonReader reader = Json.createReader(new StringReader(jsonData));
-        JsonObject data = reader.readObject();
-        reader.close();
-
-        System.err.println("WHAT I RECEIVED " + data.toString());
-        JsonValue record = data.get("data");
-
-        for(int i  = 0; i < record.size(); i++) {
-
-            System.err.println("WHAT I   " + record.toString());
-        }*/
-
-        /*for(int i = 0; i < data.size(); i++){
-            JsonNode record = data.get(i);
-            System.err.println("WHAT I RECEIVED " + record.textValue());
-        }*/
     }
 
 

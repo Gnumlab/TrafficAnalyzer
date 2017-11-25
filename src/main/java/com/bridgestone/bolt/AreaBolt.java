@@ -88,8 +88,6 @@ public class AreaBolt extends BaseRichBolt {
 
         builder.setSpout("StreetInfo", new KafkaSpout(kafkaSpoutConfig),10);
         //parallelism hint: number of thread for node
-        //builder.setBolt("exclaim1", new ExclamationBolt(), 3).shuffleGrouping("StreetInfo");
-        //builder.setBolt("exclaim2", new ExclamationBolt(), 2).shuffleGrouping("exclaim1");
         builder.setBolt("split", new SplitterBolt(),10).shuffleGrouping("StreetInfo");
         builder.setBolt("mean", new AreaBolt(),10).shuffleGrouping("split");
 
@@ -105,9 +103,6 @@ public class AreaBolt extends BaseRichBolt {
         Utils.sleep(1000000);
         cluster.killTopology("test");
         cluster.shutdown();
-        /*conf.setNumWorkers(20);
-        conf.setMaxSpoutPending(5000);
-        StormSubmitter.submitTopology("test", conf, builder.createTopology());*/
 
     }
 

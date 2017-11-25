@@ -1,6 +1,7 @@
 package com.bridgestone.test;
 
 import com.bridgestone.kafka.KafkaTopicCreator;
+import com.bridgestone.properties.ApplicationProperties;
 import com.bridgestone.utils.random.Rngs;
 import com.bridgestone.utils.random.Rvgs;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -27,7 +28,8 @@ public class RaccordoProducer {
         /*x = 52.12;
         y = 41.34;*/
         x = firstx; y = firsty;
-        String address = "35.158.214.67";
+        ApplicationProperties.loadProperties();
+        String address = ApplicationProperties.getKafkaAddress();//"35.158.214.67";
         String topicName = Double.toString(x) + Double.toString(y); //topic name: coordinates of the master section
         KafkaTopicCreator.createTopic(address, topicName);
 
@@ -157,10 +159,6 @@ public class RaccordoProducer {
                 sleep(200);
             }
         }
-      /*  System.err.println("Funeheee");
-
-        producer.close();
-        System.err.println("Funeheee");*/
     }
 
     private static String jsonFormat(double x1, double y1, double x2, double y2, int speed){

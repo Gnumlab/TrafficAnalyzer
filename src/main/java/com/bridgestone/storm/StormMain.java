@@ -57,33 +57,10 @@ public class StormMain {
                 builder.setBolt("producer".concat(topic), new ProducerBolt(),3).fieldsGrouping("street".concat(topic), new Fields("street"));
             }
         }
-        /*String topic = Double.toString(x) + Double.toString(y);
-        BrokerHosts hosts = new ZkHosts(zkConnString);
 
-        SpoutConfig kafkaSpoutConfig = new SpoutConfig (hosts, topic, "/" + topic,
-                UUID.randomUUID().toString());
-        kafkaSpoutConfig.bufferSizeBytes = 1024 * 1024 * 4;
-        kafkaSpoutConfig.fetchSizeBytes = 1024 * 1024 * 4;
-        kafkaSpoutConfig.startOffsetTime = kafka.api.OffsetRequest.LatestTime();
-        kafkaSpoutConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
-
-
-
-
-        builder.setSpout("StreetInfo", new KafkaSpout(kafkaSpoutConfig),2);
-        builder.setBolt("consumer", new SplitterBolt(),3).shuffleGrouping("StreetInfo");
-        builder.setBolt("mean", new MeanCalculatorBolt(),3).shuffleGrouping("consumer");
-        builder.setBolt("street", new UpdateMeanStreetBolt(),3).fieldsGrouping("mean", new Fields("edge"));
-        builder.setBolt("producer", new ProducerBolt(),3).fieldsGrouping("street", new Fields("street"));
-
-*/
 
         Config conf = new Config();
         conf.setDebug(false);
-
-        /********************************
-         ApplicationProperties.loadProperties();
-         */
 
         if (args != null && args.length > 0) {
             conf.setNumWorkers(3);

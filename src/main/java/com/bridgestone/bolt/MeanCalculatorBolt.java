@@ -23,63 +23,26 @@ import java.util.Map;
  * Created by francesco on 24/07/17.
  */
 public class MeanCalculatorBolt extends BaseRichBolt {
+    /**despite the name, the class i ss responsible for taking the information from the json tuple*/
     private OutputCollector _collector;
     private ObjectMapper mapper;
-    //private RedisRepository repository;
-
 
     @Override
     public void prepare(Map conf, TopologyContext context, OutputCollector collector) {
         mapper = new ObjectMapper();
         _collector = collector;
-       /* this.repository = RedisRepository.getInstance();
-        boolean stay = true;
-        while(stay) {
-            try {
-                this.repository.connectDB();
-                stay = false;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }*/
     }
 
     @Override
     public void execute(Tuple tuple) {
-        /*System.err.println("received" + tuple.getString(0) + "!!!" + "\n\n\n\n\n\n\n\n\n\n");
-        _collector.emit(tuple, new Values(tuple.getString(0) + "!!!"));
-        _collector.ack(tuple);*/
         String jsonData = tuple.getString(0);
         try {
             JsonNode msg = mapper.readTree(jsonData);
 
-            System.err.print(" RICEVUTO"+ msg);
-
-
             Node startingNode = JSonParser.makeNode(msg, 1);
             Node arrivalNode = JSonParser.makeNode(msg, 2);
-            //startingNode = this.repository.getNode(startingNode.getGraphKey());
             Edge edge = JSonParser.makeEdge(msg, startingNode, arrivalNode);
-            //edge = startingNode.getEdge(Edge.makeGraphEdgeKey(edge));
-
-            /*if(edge == null){// a new edge
-                System.err.println(" LUI NON HA EDGE"+ msg +"\n\n\n\n\n\n\n\n\n\n");
-                //startingNode.addEdge(edge); //insertig new node
-            } else {
-
-                edge.updateSpeed(msg.getStreet("speed").asDouble());
-            } */
-            //this.repository.updateNode(startingNode); // saving the updated node in repository
-                                 //this.repository.disconnectFromDB();
-            //_collector.emit(new Values(Edge.makeGraphEdgeKey(edge), edge.getSpeed()));
             _collector.emit(new Values(Edge.makeGraphEdgeKey(edge), msg.get("speed").asDouble()));
-
-            /*Edge edge = JSonParser.makeEdge(msg, startingNode, arrivalNode);
-
-            String streetKey = this.repository.getEdge(Edge.makeGraphEdgeKey(edge));
-            Double speed = this.repository.getStreetSpeed(streetKey);
-
-            this.repository.updateStreetSpeed(streetKey, speed*0.4 + edge.getSpeed()*0.6);*/
 
         } catch (IOException e) {
             e.printStackTrace();

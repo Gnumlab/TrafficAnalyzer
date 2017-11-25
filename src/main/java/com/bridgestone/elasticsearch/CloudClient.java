@@ -1,6 +1,5 @@
 package com.bridgestone.elasticsearch;
 
-import com.bridgestone.utils.ConfigurationProperties;
 import com.bridgestone.utils.ElasticClient;
 import org.apache.http.HttpHost;
 import org.elasticsearch.action.get.GetRequest;

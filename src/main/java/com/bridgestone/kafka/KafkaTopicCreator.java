@@ -9,6 +9,7 @@ import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.ZkConnection;
 
 public class KafkaTopicCreator {
+
     public static void createTopic(String host, String topicName) throws Exception {
         ZkClient zkClient = null;
         ZkUtils zkUtils = null;

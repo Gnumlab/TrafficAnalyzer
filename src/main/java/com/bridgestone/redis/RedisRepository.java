@@ -20,13 +20,7 @@ public class RedisRepository {
     private Config config;
 
     private RedisRepository() {
-        //this.connectDB();
         this.config = new Config();
-        /*config.useSingleServer()
-                .setAddress("redis://54.93.249.129:6379");*/
-        /*this.config.useClusterServers().setScanInterval(2000).addNodeAddress("redis://52.59.206.94:7000")
-                .addNodeAddress("redis://52.59.206.94:7001")
-                .addNodeAddress("redis://52.59.206.94:7002");*/
         ApplicationProperties.loadProperties();
         String address = ApplicationProperties.getRedisAddress();
         this.config.useClusterServers().setScanInterval(2000).addNodeAddress("redis://" + address +
@@ -42,7 +36,6 @@ public class RedisRepository {
     public void connectDB() {
 
         redissonClient = Redisson.create(config);
-        //redissonClient.getMap("graphArea").delete();
     }
 
 
@@ -50,31 +43,24 @@ public class RedisRepository {
 
     /* Insert a new node into db */
     public  void insertNode(Node node){
-        //this.connectDB();
         RLock lock = redissonClient.getLock(node.getGraphKey());
         lock.lock();
-        System.err.println("try insert " + node.getGraphKey() + " archi " + node.getNumberOfEdges() );
         Map<String, Node> map = redissonClient.getMap("graphArea");
-        //map.putIfAbsent(node.getGraphKey(), node);
         //you only want to insert if not present, not updating
 
         map.putIfAbsent(node.getGraphKey(), node);
         lock.unlock();
-        //this.disconnectFromDB();
     }
 
 
     /* replace node into db in order to update the values. This method implies node already exists into db */
     public  void updateNode(Node node){
-        //this.connectDB();
         RLock lock = redissonClient.getLock(node.getGraphKey());
-        //while(lock.isLocked()) ;
         lock.lock();
         System.err.println("try update " + node.getGraphKey() + " archi " + node.getNumberOfEdges() );
         Map<String, Node> map = redissonClient.getMap("graphArea");
         map.put(node.getGraphKey(), node);
         lock.unlock();
-        //this.disconnectFromDB();
     }
 
 
@@ -83,139 +69,73 @@ public class RedisRepository {
         /**insert an edge into a new "table" of redis. Value will be the key identifiers the street
          * NB: edge key already contains all the information about the edge
          */
-        //this.connectDB();
         RLock lock = redissonClient.getLock(edgeKey);
         lock.lock();
         Map<String, String> map = redissonClient.getMap("edges");
-        //map.putIfAbsent(node.getGraphKey(), node);
         //you only want to insert if not present, not updating
 
         map.putIfAbsent(edgeKey, value);
         lock.unlock();
-        //this.disconnectFromDB();
     }
 
     public void updateEdge(String edgeKey, String value){
-        //this.connectDB();
         RLock lock = redissonClient.getLock(edgeKey);
         lock.lock();
         Map<String, String> map = redissonClient.getMap("edges");
-        //map.putIfAbsent(node.getGraphKey(), node);
-        //you only want to insert if not present, not updating
-
         map.put(edgeKey, value);
         lock.unlock();
-        //this.disconnectFromDB();
     }
 
     public void updateStreetSpeed(String key, StreetInfo value){
-        //this.connectDB();
         Map<String, StreetInfo> map = redissonClient.getMap("streets");
-
-        System.err.println("                        LUNGHEZZAAAAAAA" + value.getLength());
-
-
         map.put(key, value);
-        //this.disconnectFromDB();
     }
 
     public void insertStreetSpeed(String key, StreetInfo value){
-        //this.connectDB();
         RLock lock = redissonClient.getLock(key);
         lock.lock();
         Map<String, StreetInfo> map = redissonClient.getMap("streets");
-        //map.putIfAbsent(node.getGraphKey(), node);
-        //you only want to insert if not present, not updating
-
         map.putIfAbsent(key, value);
         lock.unlock();
-        //this.disconnectFromDB();
     }
 
     public String getEdge(String key){
-        //this.connectDB();
         RLock lock = redissonClient.getLock(key);
         lock.lock();
         Map<String, String> map = redissonClient.getMap("edges");
         String s = map.get(key);
         lock.unlock();
-        //this.disconnectFromDB();
         return s;
     }
 
     public StreetInfo getStreetInfo(String key){
-        //this.connectDB();
-        RLock lock = redissonClient.getLock(key);
-        //lock.lock();
         Map<String, StreetInfo> map = redissonClient.getMap("streets");
-        //lock.unlock();
         StreetInfo streetInfo = map.get(key);
-        //this.disconnectFromDB();
         return streetInfo;
 
 
     }
 
-
-
-    public RLock getLock (String key){
-        return this.redissonClient.getLock(key);
-    }
-
-
-
-
-
-    /*
-    public void insertNode(String nodeKey, Edge newArc){
-
-
-        Map<String, Edge> map = redissonClient.getMap("graph1");
-
-        map.put(nodeKey, newArc);
-
-        if (newArc != null)
-            System.err.println("try insert " + nodeKey + " speed " + newArc.getSpeed() );
-        else
-            System.err.println("try insert " + nodeKey + " speed " + newArc );
-
-
-    }
-*/
-
     public void stampa(){
 
         RedissonClient client = Redisson.create();
 
-        System.err.println("staMPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         Map<String, String> map = client.getMap("streets");
         System.err.println("È " + map.toString());
-
-
-        //if(arcs != null)
-
 
         for(String chiave : map.keySet()){
             System.err.println(" VALORE   " +chiave);
         }
-
-
-        /*for(Edge arc : arcs){
-            System.err.println(arc.getEndingNode() + "FHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH        RSetMultimap<String, Edge> map = redissonClient.getSetMultimap(\"graphArea\");\n");
-
-        }*/
 
         client.shutdown();
 
     }
 
     public void disconnectFromDB( ) {
-        //connection.close();
         redissonClient.shutdown();
     }
 
     public Node getNode(String nodeKey) {
-        //this.connectDB();
         RLock lock = redissonClient.getLock(nodeKey);
         lock.lock();
 
@@ -223,7 +143,6 @@ public class RedisRepository {
 
         lock.unlock();
         Node node = map.get(nodeKey);
-        //this.disconnectFromDB();
         return node;
 
 
@@ -232,14 +151,12 @@ public class RedisRepository {
     public Collection<Node> getAll(){
         this.connectDB();
         Map<String, Node> map = redissonClient.getMap("graphArea");
-        //this.disconnectFromDB();
         return map.values();
     }
 
     public Map<String, Node> getAllNodes(){
         this.connectDB();
         Map<String, Node> map = redissonClient.getMap("graphArea");
-        //this.disconnectFromDB();
         return map;
     }
 
@@ -249,7 +166,6 @@ public class RedisRepository {
         for(String key: map.keySet()){
             edges.put(key, map.get(key));
         }
-        //this.disconnectFromDB();
         return map;
     }
 
@@ -259,7 +175,6 @@ public class RedisRepository {
         for(String key: map.keySet()){
             streets.put(key, map.get(key));
         }
-        //this.disconnectFromDB();
         return map;
     }
 
@@ -294,7 +209,6 @@ public class RedisRepository {
     }
 
     public static void main( String[] args){
-        //Redisson.create();
         RedisRepository redisRepository = RedisRepository.getInstance();
         /*Node node = new Node(34.3, 56.8);
         redisRepository.insertNode(node);
@@ -310,13 +224,5 @@ public class RedisRepository {
         redisRepository.disconnectFromDB();
     }
 
-    public double getMean(String startKey, String arrivalKey) {
-
-        Map<String, Node> map = redissonClient.getMap("graphArea");
-
-        Node node = map.get(startKey);
-        return node.getEdge(arrivalKey). getSpeed();
-
-    }
 }
 

@@ -18,6 +18,8 @@ import java.util.Map;
  * Created by balmung on 28/08/17.
  */
 public class UpdateMeanStreetBolt extends BaseRichBolt {
+    /**Bolt responsible for the updating of the speed value of an arc */
+
     private OutputCollector _collector;
     private ObjectMapper mapper;
     private Map<String, String> edgesToStreet = new HashMap<>();
@@ -31,10 +33,10 @@ public class UpdateMeanStreetBolt extends BaseRichBolt {
         _collector = collector;
         this.repository = RedisRepository.getInstance();
         synchronized (this.repository) {
-            /** done only once for all the threads of the same worker */
             boolean prepared = false;
             while(!prepared) {
                 try {
+                    /* getting all the needed data from the beginning */
                     this.repository.getAllEdges(this.edgesToStreet);
                     this.repository.getAllStreets(this.streetSpeed);
                     this.repository.disconnectFromDB();
@@ -46,38 +48,24 @@ public class UpdateMeanStreetBolt extends BaseRichBolt {
                 }
             }
         }
-        //boolean stay = true;
-        /*while(stay) {
-            try {
-                this.repository.connectDB();
-                stay = false;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }*/
+
     }
 
     @Override
     public void execute(Tuple tuple) {
-        System.err.println("Update STreet BOLT" + tuple.getString(0) + "!!!" + "\n\n\n\n\n\n\n\n\n\n");
 
         String edge = tuple.getString(0);
 
-        //this.repository.connectDB();
         try {
             String streetKey = this.edgesToStreet.get(edge);
             StreetInfo streetInfo = this.streetSpeed.get(streetKey);
             streetInfo.updateSpeed(tuple.getDouble(1));
             this.streetSpeed.put(streetKey, streetInfo);
-            //this.repository.updateStreetSpeed(streetKey, streetInfo);
-
-            //this.repository.disconnectFromDB();
 
             _collector.emit(new Values(streetKey, streetInfo.getSpeed()));
 
         }catch(Exception e){
             e.printStackTrace();
-            System.err.print("\n\n\n\n\n\n\n\n\n\n");
         }finally {
             _collector.ack(tuple);
         }
